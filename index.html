@@ -2,541 +2,361 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <!-- Esta etiqueta es crucial para que se vea bien en celulares -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Dudo Pro - Corrección de Ases</title>
+    <title>Cálculo DUDO</title>
     <style>
-        :root {
-            --bg-color: #121824;
-            --card-bg: #1e293b;
-            --text-color: #f8fafc;
-            --text-muted: #94a3b8;
-            --accent-color: #10b981;
-            --accent-hover: #059669;
-            --danger-color: #ef4444;
-            --warning-color: #f59e0b;
-            --border-color: #334155;
-        }
-
-        [data-theme="light"] {
-            --bg-color: #f1f5f9;
-            --card-bg: #ffffff;
-            --text-color: #0f172a;
-            --text-muted: #64748b;
-            --accent-color: #059669;
-            --accent-hover: #047857;
-            --danger-color: #dc2626;
-            --warning-color: #d97706;
-            --border-color: #e2e8f0;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            padding: 20px;
+            font-family: 'Arial', sans-serif;
+            background-color: #e5e5e5;
+            margin: 0;
+            padding: 10px;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             min-height: 100vh;
-            transition: background-color 0.3s, color 0.3s;
         }
 
-        .container {
-            width: 100%;
-            max-width: 600px;
-            background-color: var(--card-bg);
-            border-radius: 16px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-            padding: 24px;
-            border: 1px solid var(--border-color);
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 12px;
-        }
-
-        .header h1 {
-            font-size: 20px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        .theme-toggle {
-            background: none;
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            padding: 6px 12px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.2s;
-        }
-
-        .theme-toggle:hover {
-            background-color: var(--border-color);
-        }
-
-        .section-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 12px;
-            margin-top: 16px;
-        }
-
-        .grid-2 {
+        .main-container {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            width: 100%;
+            max-width: 1100px;
         }
 
-        .input-group {
+        .header { grid-column: 1 / -1; text-align: center; margin-bottom: 5px; }
+        .header h1 { color: #333; margin: 5px 0; font-size: 1.5em; }
+
+        .panel {
+            border: 2px solid #eaeaea;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #fafafa;
             display: flex;
             flex-direction: column;
-            gap: 6px;
         }
 
-        label {
-            font-size: 13px;
-            color: var(--text-muted);
-        }
-
-        input, select {
-            background-color: var(--bg-color);
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-size: 15px;
-            outline: none;
-            transition: border-color 0.2s;
-            width: 100%;
-        }
-
-        input:focus, select:focus {
-            border-color: var(--accent-color);
-        }
-
-        /* Selector de Dados Estilizado con CSS */
-        .dice-grid {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-
-        .dice-btn {
-            background-color: var(--bg-color);
-            border: 2px solid var(--border-color);
-            border-radius: 10px;
-            aspect-ratio: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            position: relative;
-            padding: 6px;
-            transition: all 0.2s;
-        }
-
-        .dice-btn:hover {
-            border-color: var(--text-muted);
-        }
-
-        .dice-btn.active {
-            border-color: var(--accent-color);
-            background-color: rgba(16, 185, 129, 0.1);
-        }
-
-        /* Estructura interna del dado CSS */
-        .dice {
-            width: 100%;
-            height: 100%;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(3, 1fr);
-            gap: 2px;
-        }
-
-        .dot {
-            background-color: var(--text-color);
-            border-radius: 50%;
-            width: 100%;
-            height: 100%;
-            max-width: 6px;
-            max-height: 6px;
-            margin: auto;
-        }
-
-        .dice-btn.active .dot {
-            background-color: var(--accent-color);
-        }
-
-        /* Posiciones específicas para los puntos de los dados */
-        .d1 .dot:nth-child(1) { grid-area: 2 / 2; }
-        
-        .d2 .dot:nth-child(1) { grid-area: 1 / 1; }
-        .d2 .dot:nth-child(2) { grid-area: 3 / 3; }
-        
-        .d3 .dot:nth-child(1) { grid-area: 1 / 1; }
-        .d3 .dot:nth-child(2) { grid-area: 2 / 2; }
-        .d3 .dot:nth-child(3) { grid-area: 3 / 3; }
-        
-        .d4 .dot:nth-child(1) { grid-area: 1 / 1; }
-        .d4 .dot:nth-child(2) { grid-area: 1 / 3; }
-        .d4 .dot:nth-child(3) { grid-area: 3 / 1; }
-        .d4 .dot:nth-child(4) { grid-area: 3 / 3; }
-        
-        .d5 .dot:nth-child(1) { grid-area: 1 / 1; }
-        .d5 .dot:nth-child(2) { grid-area: 1 / 3; }
-        .d5 .dot:nth-child(3) { grid-area: 2 / 2; }
-        .d5 .dot:nth-child(4) { grid-area: 3 / 1; }
-        .d5 .dot:nth-child(5) { grid-area: 3 / 3; }
-        
-        .d6 .dot:nth-child(1) { grid-area: 1 / 1; }
-        .d6 .dot:nth-child(2) { grid-area: 1 / 3; }
-        .d6 .dot:nth-child(3) { grid-area: 2 / 1; }
-        .d6 .dot:nth-child(4) { grid-area: 2 / 3; }
-        .d6 .dot:nth-child(5) { grid-area: 3 / 1; }
-        .d6 .dot:nth-child(6) { grid-area: 3 / 3; }
-
-        /* Panel de Resultados y Probabilidad */
-        .result-panel {
-            background-color: var(--bg-color);
-            border-radius: 12px;
-            padding: 16px;
-            border: 1px solid var(--border-color);
-            margin-top: 20px;
+        .panel-title {
+            font-weight: bold;
             text-align: center;
-        }
-
-        .probability-display {
-            font-size: 36px;
-            font-weight: 800;
-            margin: 8px 0;
-            color: var(--accent-color);
-        }
-
-        .progress-container {
-            background-color: var(--border-color);
-            border-radius: 8px;
-            height: 12px;
-            width: 100%;
-            overflow: hidden;
             margin-bottom: 12px;
+            color: #444;
+            font-size: 1.1em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .progress-bar {
-            height: 100%;
-            width: 0%;
-            background-color: var(--accent-color);
-            transition: width 0.3s, background-color 0.3s;
+        .dice-face-icon { font-size: 2.2em; line-height: 1; color: #222; }
+        .dice-count-box, .response-num {
+            font-size: 1.3em; font-weight: bold; background: #e0e0e0;
+            padding: 4px; border-radius: 6px; text-align: center;
         }
 
-        .helper-text {
-            font-size: 14px;
-            color: var(--text-muted);
-            line-height: 1.4;
+        .dice-game-controls { display: flex; align-items: center; justify-content: center; gap: 15px; }
+        .dice-game-count { font-size: 3.5em; font-weight: bold; color: #222; min-width: 70px; text-align: center; }
+
+        .my-dice-grid {
+            display: grid; 
+            grid-template-columns: repeat(6, 1fr); /* Ajustado a 6 columnas limpias */
+            gap: 6px; align-items: center; text-align: center;
         }
 
-        /* Tabla de respuestas posibles corregida */
-        .responses-box {
-            margin-top: 16px;
-            background-color: var(--bg-color);
+        .current-play-controls { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 15px; }
+        .current-quantity { font-size: 3em; font-weight: bold; color: #222; width: 60px; text-align: center; background: #e0e0e0; border-radius: 8px; }
+        .play-quantity-arrows { display: flex; flex-direction: column; gap: 5px; }
+
+        .dice-face-selector {
+            display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; margin-bottom: 10px;
+        }
+
+        .selectable-face {
+            font-size: 2.2em; line-height: 1; cursor: pointer; border: 3px solid transparent;
+            border-radius: 8px; text-align: center; user-select: none; padding: 5px 0;
+            background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .selectable-face.selected { background-color: #00ffff; border-color: #00cccc; transform: scale(1.05); }
+
+        .results-box { background: #eef2f5; padding: 10px; border-radius: 8px; text-align: center; }
+        .results-text { margin: 3px 0; font-size: 1.05em; color: #333; }
+
+        .responses-grid {
+            display: grid; grid-template-columns: repeat(6, 1fr) auto;
+            gap: 6px; text-align: center; align-items: center;
+        }
+        .prob-label { font-weight: bold; font-size: 1em; color: #555; }
+        .prob-value { font-size: 1.1em; font-weight: bold; }
+        .col-span-full { grid-column: 1 / -1; }
+
+        .btn-arrow {
+            border-radius: 8px;
+            cursor: pointer; font-size: 1.6em; width: 100%; min-width: 36px; height: 40px;
+            display: flex; justify-content: center; align-items: center;
+            user-select: none; touch-action: manipulation;
+        }
+        .btn-arrow:active { transform: translateY(2px); box-shadow: none !important; }
+        
+        /* Flechas completamente rellenas */
+        .btn-arrow-up { 
+            background-color: #28a745 !important; 
+            color: white !important; 
+            border: 1px solid #1e7e34 !important;
+            box-shadow: 0 2px 0 #1e7e34;
+        }
+        .btn-arrow-down { 
+            background-color: #dc3545 !important; 
+            color: white !important; 
+            border: 1px solid #bd2130 !important;
+            box-shadow: 0 2px 0 #bd2130;
+        }
+
+        @media (max-height: 450px) and (orientation: landscape) {
+            .dice-game-count { font-size: 2.5em; }
+            .current-quantity { font-size: 2.5em; }
+            .dice-face-icon, .selectable-face { font-size: 1.8em; }
+            .btn-arrow { height: 35px; font-size: 1.4em;}
+            .panel { padding: 10px; }
+        }
+
+        /* Colores de semáforo */
+        .risk-green { background-color: #28a745 !important; color: white !important; border: 2px solid #1e7e34 !important; }
+        .risk-red { background-color: #dc3545 !important; color: white !important; border: 2px solid #bd2130 !important; }
+        .risk-yellow { background-color: #ffc107 !important; color: black !important; border: 2px solid #d39e00 !important; }
+
+        /* Efecto de botón para las respuestas */
+        .response-num {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .response-num:hover {
+            background-color: #d0d0d0;
+            transform: translateY(-2px);
+        }
+        .response-num:active {
+            transform: scale(0.95);
+            box-shadow: none;
+        }
+
+        /* Botón de Siguiente Ronda */
+        .btn-next-round {
+            margin-top: 15px;
+            background-color: #0d6efd;
+            color: white;
+            border: none;
             border-radius: 8px;
             padding: 12px;
-            border: 1px solid var(--border-color);
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #0a58ca;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-
-        .response-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 6px 0;
-            font-size: 13px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+        .btn-next-round:active {
+            transform: translateY(4px);
+            box-shadow: none;
         }
-        [data-theme="light"] .response-row {
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-        }
-
-        .response-row:last-child {
-            border-bottom: none;
-        }
-
-        .badge {
-            background-color: var(--border-color);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-weight: 600;
-        }
-
-        .alert-box {
-            background-color: rgba(245, 158, 11, 0.1);
-            border-left: 4px solid var(--warning-color);
-            padding: 10px;
-            border-radius: 4px;
-            font-size: 13px;
-            margin-bottom: 16px;
-            display: none;
-        }
+        
     </style>
 </head>
 <body>
+    <div class="main-container">
+        <div class="header"><h1>🎲 Cálculo DUDO</h1></div>
 
-<div class="container">
-    <div class="header">
-        <h1>🎲 Calculadora de Dudo Pro</h1>
-        <button class="theme-toggle" id="themeBtn">Modo Claro</button>
-    </div>
-
-    <!-- Alerta informativa de reglas de cambio -->
-    <div class="alert-box" id="ruleAlert">
-        ⚠️ <strong>Regla Activa:</strong> Saliendo de Ases. El mínimo para volver a pinta normal es <strong>(Ases × 2) + 1</strong>.
-    </div>
-
-    <div class="grid-2">
-        <div class="input-group">
-            <label for="totalDice">Total dados en mesa</label>
-            <input type="number" id="totalDice" value="20" min="1" max="50">
+        <div class="panel">
+            <div class="panel-title">Dados en juego</div>
+            <div class="dice-game-controls">
+                <div class="dice-game-count" id="ui-total-dice">24</div>
+                <button class="btn-arrow btn-arrow-up" onclick="changeTotalDice(1)">⇧</button>
+                <button class="btn-arrow btn-arrow-down" onclick="changeTotalDice(-1)">⇩</button>
+            </div>
         </div>
-        <div class="input-group">
-            <label for="ownDice">Tus dados totales</label>
-            <input type="number" id="ownDice" value="5" min="0" max="5">
-        </div>
-    </div>
 
-    <div class="section-title">Tu Mano (Cuántos tienes de la jugada)</div>
-    <div class="input-group" style="margin-bottom: 16px;">
-        <label for="myMatches">Dados tuyos que sirven para la apuesta (incluye tus Ases si aplica):</label>
-        <input type="number" id="myMatches" value="2" min="0" max="5">
-    </div>
+        <div class="panel">
+            <div class="panel-title">Mis dados</div>
+            <div class="my-dice-grid">
+                <div class="dice-face-icon">⚀</div><div class="dice-face-icon">⚁</div>
+                <div class="dice-face-icon">⚂</div><div class="dice-face-icon">⚃</div>
+                <div class="dice-face-icon">⚄</div><div class="dice-face-icon">⚅</div>
 
-    <div class="section-title">Jugada Actual del Rival</div>
-    <div class="grid-2">
-        <div class="input-group">
-            <label for="currentQty">Cantidad cantada</label>
-            <input type="number" id="currentQty" value="4" min="1">
+                <div class="dice-count-box" id="my-dice-1">2</div><div class="dice-count-box" id="my-dice-2">0</div>
+                <div class="dice-count-box" id="my-dice-3">0</div><div class="dice-count-box" id="my-dice-4">1</div>
+                <div class="dice-count-box" id="my-dice-5">1</div><div class="dice-count-box" id="my-dice-6">1</div>
+
+                <button class="btn-arrow btn-arrow-up" onclick="changeMyDice(1, 1)">⇧</button>
+                <button class="btn-arrow btn-arrow-up" onclick="changeMyDice(2, 1)">⇧</button>
+                <button class="btn-arrow btn-arrow-up" onclick="changeMyDice(3, 1)">⇧</button>
+                <button class="btn-arrow btn-arrow-up" onclick="changeMyDice(4, 1)">⇧</button>
+                <button class="btn-arrow btn-arrow-up" onclick="changeMyDice(5, 1)">⇧</button>
+                <button class="btn-arrow btn-arrow-up" onclick="changeMyDice(6, 1)">⇧</button>
+
+                <button class="btn-arrow btn-arrow-down" onclick="changeMyDice(1, -1)">⇩</button>
+                <button class="btn-arrow btn-arrow-down" onclick="changeMyDice(2, -1)">⇩</button>
+                <button class="btn-arrow btn-arrow-down" onclick="changeMyDice(3, -1)">⇩</button>
+                <button class="btn-arrow btn-arrow-down" onclick="changeMyDice(4, -1)">⇩</button>
+                <button class="btn-arrow btn-arrow-down" onclick="changeMyDice(5, -1)">⇩</button>
+                <button class="btn-arrow btn-arrow-down" onclick="changeMyDice(6, -1)">⇩</button>
+            </div>
         </div>
-        <div class="input-group">
-            <label>Cara del dado</label>
-            <div class="dice-grid">
-                <button class="dice-btn" data-face="1">
-                    <div class="dice d1"><div class="dot"></div></div>
-                </button>
-                <button class="dice-btn" data-face="2">
-                    <div class="dice d2"><div class="dot"></div><div class="dot"></div></div>
-                </button>
-                <button class="dice-btn" data-face="3">
-                    <div class="dice d3"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
-                </button>
-                <button class="dice-btn" data-face="4">
-                    <div class="dice d4"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
-                </button>
-                <button class="dice-btn" data-face="5">
-                    <div class="dice d5"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
-                </button>
-                <button class="dice-btn" data-face="6">
-                    <div class="dice d6"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
-                </button>
+
+        <div class="panel">
+            <div class="panel-title">Jugada actual</div>
+            <div class="current-play-controls">
+                <div class="current-quantity" id="ui-current-qty">8</div>
+                <div class="play-quantity-arrows">
+                    <button class="btn-arrow btn-arrow-up" onclick="changeCurrentQty(1)">⇧</button>
+                    <button class="btn-arrow btn-arrow-down" onclick="changeCurrentQty(-1)">⇩</button>
+                </div>
+            </div>
+            <div class="dice-face-selector">
+                <div class="selectable-face" id="sel-face-1" onclick="setCurrentFace(1)">⚀</div>
+                <div class="selectable-face" id="sel-face-2" onclick="setCurrentFace(2)">⚁</div>
+                <div class="selectable-face" id="sel-face-3" onclick="setCurrentFace(3)">⚂</div>
+                <div class="selectable-face" id="sel-face-4" onclick="setCurrentFace(4)">⚃</div>
+                <div class="selectable-face" id="sel-face-5" onclick="setCurrentFace(5)">⚄</div>
+                <div class="selectable-face selected" id="sel-face-6" onclick="setCurrentFace(6)">⚅</div>
+            </div>
+            <div class="results-box">
+                <p class="results-text">Sin tus dados: <strong id="prob-curr-sin">--%</strong></p>
+                <p class="results-text">Con tus dados: <strong id="prob-curr-con">--%</strong></p>
+            </div>
+        </div>
+
+
+        <div class="panel col-span-full">
+            <div class="panel-title">Posibles respuestas</div>
+            <div class="responses-grid">
+                <div class="response-num" id="resp-qty-1" onclick="applyResponse(1)">5</div>
+                <div class="response-num" id="resp-qty-2" onclick="applyResponse(2)">9</div>
+                <div class="response-num" id="resp-qty-3" onclick="applyResponse(3)">9</div>
+                <div class="response-num" id="resp-qty-4" onclick="applyResponse(4)">9</div>
+                <div class="response-num" id="resp-qty-5" onclick="applyResponse(5)">9</div>
+                <div class="response-num" id="resp-qty-6" onclick="applyResponse(6)">9</div><div></div>
+                
+                <div class="dice-face-icon">⚀</div><div class="dice-face-icon">⚁</div>
+                <div class="dice-face-icon">⚂</div><div class="dice-face-icon">⚃</div>
+                <div class="dice-face-icon">⚄</div><div class="dice-face-icon">⚅</div><div></div>
+
+                <div class="prob-value" id="resp-sin-1">--%</div><div class="prob-value" id="resp-sin-2">--%</div>
+                <div class="prob-value" id="resp-sin-3">--%</div><div class="prob-value" id="resp-sin-4">--%</div>
+                <div class="prob-value" id="resp-sin-5">--%</div><div class="prob-value" id="resp-sin-6">--%</div>
+                <div class="prob-label">sin</div>
+
+                <div class="prob-value" id="resp-con-1">--%</div><div class="prob-value" id="resp-con-2">--%</div>
+                <div class="prob-value" id="resp-con-3">--%</div><div class="prob-value" id="resp-con-4">--%</div>
+                <div class="prob-value" id="resp-con-5">--%</div><div class="prob-value" id="resp-con-6">--%</div>
+                <div class="prob-label">con</div>
             </div>
         </div>
     </div>
 
-    <div class="result-panel">
-        <div class="helper-text" id="playDescription">Probabilidad de que la jugada sea REAL:</div>
-        <div class="probability-display" id="probText">--%</div>
-        <div class="progress-container">
-            <div class="progress-bar" id="progressBar"></div>
-        </div>
-        <div class="helper-text" id="adviceText">Cargando análisis...</div>
-    </div>
-
-    <div class="section-title">Mínimos Permitidos para tu Respuesta</div>
-    <div class="responses-box" id="nextPlaysBox">
-        <!-- Generado dinámicamente -->
-    </div>
-</div>
-
 <script>
-    // Estado de la app
-    const state = {
-        theme: 'dark',
-        currentFace: 1 // Empezamos en 1 (Ases) para demostrar la corrección del usuario
-    };
+    let state = { totalDice: 24, myDice: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 }, currentQty: 8, currentFace: 6 };
 
-    // Combinatoria para distribución binomial
-    function nCr(n, r) {
-        if (r < 0 || r > n) return 0;
-        if (r === 0 || r === n) return 1;
-        if (r > n / 2) r = n - r;
+    function recalculateInitialBid() {
+        let misDados = Object.values(state.myDice).reduce((a, b) => a + b, 0);
+        let dadosOcultos = state.totalDice - misDados;
+        let misDadosValidos = state.myDice[6] + state.myDice[1];
+        let sugerencia = misDadosValidos + Math.floor(dadosOcultos / 3);
+        state.currentQty = Math.max(1, sugerencia);
+        state.currentFace = 6;
+    }
+
+    function changeTotalDice(delta) { 
+        state.totalDice = Math.max(1, state.totalDice + delta); 
+        state.myDice = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 }; 
+        recalculateInitialBid();
+        updateUI(); 
+    }
+
+    function changeMyDice(face, delta) {
+        state.myDice[face] = Math.max(0, state.myDice[face] + delta);
+        if (Object.values(state.myDice).reduce((a, b) => a + b, 0) > state.totalDice) { state.myDice[face] -= delta; }
+        updateUI();
+    }
+
+    function changeCurrentQty(delta) { state.currentQty = Math.max(1, state.currentQty + delta); updateUI(); }
+    function setCurrentFace(face) { state.currentFace = face; updateUI(); }
+
+    function binomialCoeff(n, k) {
+        if (k < 0 || k > n) return 0;
+        if (k === 0 || k === n) return 1;
+        if (k > n / 2) k = n - k;
         let res = 1;
-        for (let i = 1; i <= r; i++) {
-            res = res * (n - i + 1) / i;
-        }
+        for (let i = 1; i <= k; i++) res = res * (n - i + 1) / i;
         return res;
     }
 
-    // Calcular probabilidad binomial acumulada
-    function calculateBinomial(totalMesa, misDados, misDadosUtiles, cantCantada, cara) {
-        const dadosOcultos = totalMesa - misDados;
-        const faltantes = cantCantada - misDadosUtiles;
-
-        if (faltantes <= 0) return 100; // Ya se cumple con lo que tengo en mano
-        if (dadosOcultos < faltantes) return 0; // Es físicamente imposible que existan suficientes dados
-
-        // Probabilidad de éxito por cada dado oculto
-        // Si se cantan Ases (1), la prob es 1/6. Si es cualquier otra pinta, es 2/6 (la pinta + el as comodín)
-        const p = (cara === 1) ? (1 / 6) : (2 / 6);
-        
-        let sumaProb = 0;
-        for (let k = faltantes; k <= dadosOcultos; k++) {
-            sumaProb += nCr(dadosOcultos, k) * Math.pow(p, k) * Math.pow(1 - p, dadosOcultos - k);
+    function calculateProbability(n, k, p) {
+        let prob = 0;
+        for (let i = k; i <= n; i++) {
+            prob += binomialCoeff(n, i) * Math.pow(p, i) * Math.pow(1 - p, n - i);
         }
-
-        return Math.min(100, Math.max(0, sumaProb * 100));
+        return prob;
     }
 
     function updateUI() {
-        const totalDice = parseInt(document.getElementById('totalDice').value) || 0;
-        const ownDice = parseInt(document.getElementById('ownDice').value) || 0;
-        const myMatches = parseInt(document.getElementById('myMatches').value) || 0;
-        const currentQty = parseInt(document.getElementById('currentQty').value) || 1;
-        const face = state.currentFace;
-
-        // Validar topes lógicos de inputs
-        if(myMatches > ownDice) {
-            document.getElementById('myMatches').value = ownDice;
+        // 1. Actualización básica
+        document.getElementById('ui-total-dice').innerText = state.totalDice;
+        for (let i = 1; i <= 6; i++) {
+            document.getElementById(`my-dice-${i}`).innerText = state.myDice[i];
+            document.getElementById(`sel-face-${i}`).classList.toggle('selected', state.currentFace === i);
         }
+        document.getElementById('ui-current-qty').innerText = state.currentQty;
 
-        // 1. Calcular Probabilidad de la jugada actual
-        const prob = calculateBinomial(totalDice, ownDice, myMatches, currentQty, face);
-        
-        // Actualizar vista de probabilidad
-        const probText = document.getElementById('probText');
-        const progressBar = document.getElementById('progressBar');
-        probText.innerText = prob.toFixed(1) + '%';
-        progressBar.style.width = prob + '%';
+        // 2. Cálculo de probabilidades actuales
+        let misDadosTotal = Object.values(state.myDice).reduce((a, b) => a + b, 0);
+        let dadosOcultos = state.totalDice - misDadosTotal;
+        let p = (state.currentFace === 1) ? 1/6 : 1/3;
+        let misDadosEsaCara = state.myDice[state.currentFace] + (state.currentFace === 1 ? 0 : state.myDice[1]);
 
-        // Cambiar color según riesgo
-        if (prob > 70) {
-            probText.style.color = 'var(--accent-color)';
-            progressBar.style.background = 'var(--accent-color)';
-            document.getElementById('adviceText').innerText = "⚠️ Alta probabilidad. No te conviene dudarle todavía.";
-        } else if (prob > 40) {
-            probText.style.color = 'var(--warning-color)';
-            progressBar.style.background = 'var(--warning-color)';
-            document.getElementById('adviceText').innerText = "⚖️ Zona gris. El rival podría estar diciendo la verdad justa.";
-        } else {
-            probText.style.color = 'var(--danger-color)';
-            progressBar.style.background = 'var(--danger-color)';
-            document.getElementById('adviceText').innerText = "🔥 ¡Baja probabilidad! Excelente momento para cantar ¡DUDO!.";
-        }
+        let probSin = calculateProbability(dadosOcultos, state.currentQty, p);
+        let probCon = calculateProbability(dadosOcultos, Math.max(0, state.currentQty - misDadosEsaCara), p);
 
-        // Label descriptivo
-        const nombresPintas = {1: 'Ases', 2: 'Doses', 3: 'Treces', 4: 'Cuadras', 5: 'Quinas', 6: 'Sextas'};
-        document.getElementById('playDescription').innerText = `Probabilidad de que existan ${currentQty} ${nombresPintas[face]} en total:`;
+        document.getElementById('prob-curr-sin').innerText = (probSin * 100).toFixed(1) + '%';
+        document.getElementById('prob-curr-con').innerText = (probCon * 100).toFixed(1) + '%';
 
-        // 2. CORRECCIÓN CRÍTICA DE REGLAS: Calcular las respuestas válidas siguientes
-        const nextPlaysBox = document.getElementById('nextPlaysBox');
-        nextPlaysBox.innerHTML = '';
-
-        const alertBox = document.getElementById('ruleAlert');
-        
-        if (face === 1) {
-            // SI LA JUGADA ACTUAL ES ASES (Tu caso reportado: 4 o 5 ases)
-            alertBox.style.display = 'block';
+        // 3. Lógica de semáforo para botones de respuesta (Con corrección de Ases)
+        for (let f = 1; f <= 6; f++) {
+            let btn = document.getElementById(`resp-qty-${f}`);
             
-            for (let f = 1; f <= 6; f++) {
-                let minQty = 0;
-                if (f === 1) {
-                    // Para seguir en ases, solo debes incrementar en 1
-                    minQty = currentQty + 1;
-                } else {
-                    // REGLA OFICIAL DEL DUDO: Para salir de Ases a una pinta normal, es el (Doble de Ases) + 1
-                    minQty = (currentQty * 2) + 1;
-                }
-
-                const row = document.createElement('div');
-                row.className = 'response-row';
-                row.innerHTML = `<span>Mínimo para responder con <strong>${nombresPintas[f]}</strong>:</span> <span class="badge">${minQty} dados</span>`;
-                nextPlaysBox.appendChild(row);
+            // CORRECCIÓN TRANSICIÓN DE ASES:
+            let qty;
+            if (state.currentFace === 1) {
+                // Si vienes de Ases, para seguir en ases sumas +1, para salir a otra pinta es (Ases * 2) + 1
+                qty = (f === 1) ? state.currentQty + 1 : (state.currentQty * 2) + 1;
+            } else {
+                // Si estás en pinta normal, para bajar a ases es la mitad ceil, para otra pinta sumas +1
+                qty = (f === 1) ? Math.ceil(state.currentQty / 2) : state.currentQty + 1;
             }
-        } else {
-            // SI LA JUGADA ACTUAL ES NORMAL (2-6)
-            alertBox.style.display = 'none';
             
-            for (let f = 1; f <= 6; f++) {
-                let minQty = 0;
-                if (f === 1) {
-                    // Para bajar a Ases, es la mitad redondeada hacia arriba
-                    minQty = Math.ceil(currentQty / 2);
-                } else if (f > face) {
-                    // Si subes la pinta, puedes mantener la misma cantidad
-                    minQty = currentQty;
-                } else {
-                    // Si mantienes la pinta o bajas la pinta, debes subir la cantidad en 1
-                    minQty = currentQty + 1;
-                }
+            btn.innerText = qty;
 
-                const row = document.createElement('div');
-                row.className = 'response-row';
-                row.innerHTML = `<span>Mínimo para responder con <strong>${nombresPintas[f]}</strong>:</span> <span class="badge">${minQty} dados</span>`;
-                nextPlaysBox.appendChild(row);
-            }
+            let pRes = calculateProbability(dadosOcultos, Math.max(0, qty - (state.myDice[f] + (f === 1 ? 0 : state.myDice[1]))), (f === 1 ? 1/6 : 1/3)) * 100;
+
+            btn.classList.remove('risk-green', 'risk-red', 'risk-yellow');
+            if (pRes >= 60) btn.classList.add('risk-green');
+            else if (pRes < 40) btn.classList.add('risk-red');
+            else btn.classList.add('risk-yellow');
+
+            document.getElementById(`resp-sin-${f}`).innerText = (calculateProbability(dadosOcultos, qty, (f === 1 ? 1/6 : 1/3)) * 100).toFixed(0) + '%';
+            document.getElementById(`resp-con-${f}`).innerText = pRes.toFixed(0) + '%';
         }
     }
 
-    // Manejo de clicks en los dados CSS
-    document.querySelectorAll('.dice-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.dice-btn').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            state.currentFace = parseInt(this.getAttribute('data-face'));
-            updateUI();
-        });
-    });
-
-    // Inputs dinámicos
-    document.getElementById('totalDice').addEventListener('input', updateUI);
-    document.getElementById('ownDice').addEventListener('input', function() {
-        const val = parseInt(this.value) || 0;
-        document.getElementById('myMatches').max = val;
+    function applyResponse(face) {
+        state.currentFace = face;
+        state.currentQty = parseInt(document.getElementById(`resp-qty-${face}`).innerText);
         updateUI();
-    });
-    document.getElementById('myMatches').addEventListener('input', updateUI);
-    document.getElementById('currentQty').addEventListener('input', updateUI);
+    }
 
-    // Toggle de modo claro/oscuro
-    document.getElementById('themeBtn').addEventListener('click', function() {
-        if (state.theme === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'light');
-            this.innerText = 'Modo Oscuro';
-            state.theme = 'light';
-        } else {
-            document.documentElement.removeAttribute('data-theme');
-            this.innerText = 'Modo Claro';
-            state.theme = 'dark';
-        }
-    });
-
-    // Inicializar app marcando el As (1) como activo
-    document.querySelector('.dice-btn[data-face="1"]').classList.add('active');
-    updateUI();
+    window.onload = updateUI;
 </script>
-
 </body>
 </html>
