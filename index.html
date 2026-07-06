@@ -2,7 +2,6 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <!-- Esta etiqueta es crucial para que se vea bien en celulares -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cálculo DUDO</title>
     <style>
@@ -62,7 +61,7 @@
 
         .my-dice-grid {
             display: grid; 
-            grid-template-columns: repeat(6, 1fr); /* Ajustado a 6 columnas limpias */
+            grid-template-columns: repeat(6, 1fr);
             gap: 6px; align-items: center; text-align: center;
         }
 
@@ -100,7 +99,6 @@
         }
         .btn-arrow:active { transform: translateY(2px); box-shadow: none !important; }
         
-        /* Flechas completamente rellenas */
         .btn-arrow-up { 
             background-color: #28a745 !important; 
             color: white !important; 
@@ -122,12 +120,10 @@
             .panel { padding: 10px; }
         }
 
-        /* Colores de semáforo */
         .risk-green { background-color: #28a745 !important; color: white !important; border: 2px solid #1e7e34 !important; }
         .risk-red { background-color: #dc3545 !important; color: white !important; border: 2px solid #bd2130 !important; }
         .risk-yellow { background-color: #ffc107 !important; color: black !important; border: 2px solid #d39e00 !important; }
 
-        /* Efecto de botón para las respuestas */
         .response-num {
             cursor: pointer;
             transition: all 0.2s ease;
@@ -141,34 +137,13 @@
             transform: scale(0.95);
             box-shadow: none;
         }
-
-        /* Botón de Siguiente Ronda */
-        .btn-next-round {
-            margin-top: 15px;
-            background-color: #0d6efd;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 12px;
-            font-size: 1.1em;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 0 #0a58ca;
-            transition: all 0.2s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .btn-next-round:active {
-            transform: translateY(4px);
-            box-shadow: none;
-        }
-        
     </style>
 </head>
 <body>
     <div class="main-container">
         <div class="header"><h1>🎲 Cálculo DUDO</h1></div>
 
+        <!-- Panel 1: Dados en Juego -->
         <div class="panel">
             <div class="panel-title">Dados en juego</div>
             <div class="dice-game-controls">
@@ -178,6 +153,7 @@
             </div>
         </div>
 
+        <!-- Panel 2: Mis Dados -->
         <div class="panel">
             <div class="panel-title">Mis dados</div>
             <div class="my-dice-grid">
@@ -205,22 +181,23 @@
             </div>
         </div>
 
+        <!-- Panel 3: Jugada Actual -->
         <div class="panel">
             <div class="panel-title">Jugada actual</div>
             <div class="current-play-controls">
-                <div class="current-quantity" id="ui-current-qty">8</div>
+                <div class="current-quantity" id="ui-current-qty">5</div>
                 <div class="play-quantity-arrows">
                     <button class="btn-arrow btn-arrow-up" onclick="changeCurrentQty(1)">⇧</button>
                     <button class="btn-arrow btn-arrow-down" onclick="changeCurrentQty(-1)">⇩</button>
                 </div>
             </div>
             <div class="dice-face-selector">
-                <div class="selectable-face" id="sel-face-1" onclick="setCurrentFace(1)">⚀</div>
+                <div class="selectable-face selected" id="sel-face-1" onclick="setCurrentFace(1)">⚀</div>
                 <div class="selectable-face" id="sel-face-2" onclick="setCurrentFace(2)">⚁</div>
                 <div class="selectable-face" id="sel-face-3" onclick="setCurrentFace(3)">⚂</div>
                 <div class="selectable-face" id="sel-face-4" onclick="setCurrentFace(4)">⚃</div>
                 <div class="selectable-face" id="sel-face-5" onclick="setCurrentFace(5)">⚄</div>
-                <div class="selectable-face selected" id="sel-face-6" onclick="setCurrentFace(6)">⚅</div>
+                <div class="selectable-face" id="sel-face-6" onclick="setCurrentFace(6)">⚅</div>
             </div>
             <div class="results-box">
                 <p class="results-text">Sin tus dados: <strong id="prob-curr-sin">--%</strong></p>
@@ -228,16 +205,16 @@
             </div>
         </div>
 
-
+        <!-- Panel 4: Posibles Respuestas -->
         <div class="panel col-span-full">
             <div class="panel-title">Posibles respuestas</div>
             <div class="responses-grid">
-                <div class="response-num" id="resp-qty-1" onclick="applyResponse(1)">5</div>
-                <div class="response-num" id="resp-qty-2" onclick="applyResponse(2)">9</div>
-                <div class="response-num" id="resp-qty-3" onclick="applyResponse(3)">9</div>
-                <div class="response-num" id="resp-qty-4" onclick="applyResponse(4)">9</div>
-                <div class="response-num" id="resp-qty-5" onclick="applyResponse(5)">9</div>
-                <div class="response-num" id="resp-qty-6" onclick="applyResponse(6)">9</div><div></div>
+                <div class="response-num" id="resp-qty-1" onclick="applyResponse(1)">6</div>
+                <div class="response-num" id="resp-qty-2" onclick="applyResponse(2)">10</div>
+                <div class="response-num" id="resp-qty-3" onclick="applyResponse(3)">10</div>
+                <div class="response-num" id="resp-qty-4" onclick="applyResponse(4)">10</div>
+                <div class="response-num" id="resp-qty-5" onclick="applyResponse(5)">10</div>
+                <div class="response-num" id="resp-qty-6" onclick="applyResponse(6)">10</div><div></div>
                 
                 <div class="dice-face-icon">⚀</div><div class="dice-face-icon">⚁</div>
                 <div class="dice-face-icon">⚂</div><div class="dice-face-icon">⚃</div>
@@ -257,21 +234,12 @@
     </div>
 
 <script>
-    let state = { totalDice: 24, myDice: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 }, currentQty: 8, currentFace: 6 };
-
-    function recalculateInitialBid() {
-        let misDados = Object.values(state.myDice).reduce((a, b) => a + b, 0);
-        let dadosOcultos = state.totalDice - misDados;
-        let misDadosValidos = state.myDice[6] + state.myDice[1];
-        let sugerencia = misDadosValidos + Math.floor(dadosOcultos / 3);
-        state.currentQty = Math.max(1, sugerencia);
-        state.currentFace = 6;
-    }
+    let state = { totalDice: 24, myDice: { 1: 2, 2: 0, 3: 0, 4: 1, 5: 1, 6: 1 }, currentQty: 5, currentFace: 1 };
 
     function changeTotalDice(delta) { 
         state.totalDice = Math.max(1, state.totalDice + delta); 
         state.myDice = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 }; 
-        recalculateInitialBid();
+        state.currentQty = 1;
         updateUI(); 
     }
 
@@ -302,7 +270,6 @@
     }
 
     function updateUI() {
-        // 1. Actualización básica
         document.getElementById('ui-total-dice').innerText = state.totalDice;
         for (let i = 1; i <= 6; i++) {
             document.getElementById(`my-dice-${i}`).innerText = state.myDice[i];
@@ -310,7 +277,6 @@
         }
         document.getElementById('ui-current-qty').innerText = state.currentQty;
 
-        // 2. Cálculo de probabilidades actuales
         let misDadosTotal = Object.values(state.myDice).reduce((a, b) => a + b, 0);
         let dadosOcultos = state.totalDice - misDadosTotal;
         let p = (state.currentFace === 1) ? 1/6 : 1/3;
@@ -322,17 +288,15 @@
         document.getElementById('prob-curr-sin').innerText = (probSin * 100).toFixed(1) + '%';
         document.getElementById('prob-curr-con').innerText = (probCon * 100).toFixed(1) + '%';
 
-        // 3. Lógica de semáforo para botones de respuesta (Con corrección de Ases)
+        // Renderizar respuestas con la regla de Ases corregida (Ases * 2)
         for (let f = 1; f <= 6; f++) {
             let btn = document.getElementById(`resp-qty-${f}`);
             
-            // CORRECCIÓN TRANSICIÓN DE ASES:
             let qty;
             if (state.currentFace === 1) {
-                // Si vienes de Ases, para seguir en ases sumas +1, para salir a otra pinta es (Ases * 2) + 1
-                qty = (f === 1) ? state.currentQty + 1 : (state.currentQty * 2) + 1;
+                // CORRECCIÓN: Al salir de Ases a normal, es exactamente el doble (Ases * 2)
+                qty = (f === 1) ? state.currentQty + 1 : (state.currentQty * 2);
             } else {
-                // Si estás en pinta normal, para bajar a ases es la mitad ceil, para otra pinta sumas +1
                 qty = (f === 1) ? Math.ceil(state.currentQty / 2) : state.currentQty + 1;
             }
             
