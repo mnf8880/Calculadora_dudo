@@ -1,0 +1,427 @@
+<div class="main-container">
+    <div class="header">
+        <h1>🎲 Cálculo DUDO</h1>
+    </div>
+
+    <!-- Panel: Dados en juego -->
+    <div class="panel">
+        <div class="panel-title">Dados en juego</div>
+        <div class="dice-game-controls">
+            <div class="dice-game-count" id="ui-total-dice">24</div>
+            <button class="btn-arrow btn-arrow-up" onclick="changeTotalDice(1)">⇧</button>
+            <button class="btn-arrow btn-arrow-down" onclick="changeTotalDice(-1)">⇩</button>
+        </div>
+    </div>
+
+    <!-- Panel: Mis dados -->
+    <div class="panel">
+        <div class="panel-title">Mis dados</div>
+        <div class="my-dice-grid">
+            <!-- Caras -->
+            <div class="dice-face-icon">⚀</div>
+            <div class="dice-face-icon">⚁</div>
+            <div class="dice-face-icon">⚂</div>
+            <div class="dice-face-icon">⚃</div>
+            <div class="dice-face-icon">⚄</div>
+            <div class="dice-face-icon">⚅</div>
+            <div class="limpiar-label">Limp.</div>
+
+            <!-- Contadores -->
+            <div class="dice-count-box" id="my-dice-1">2</div>
+            <div class="dice-count-box" id="my-dice-2">0</div>
+            <div class="dice-count-box" id="my-dice-3">0</div>
+            <div class="dice-count-box" id="my-dice-4">1</div>
+            <div class="dice-count-box" id="my-dice-5">1</div>
+            <div class="dice-count-box" id="my-dice-6">1</div>
+            <button class="btn-clear" onclick="clearMyDice()">✖</button>
+
+            <!-- Flechas Arriba -->
+            <button class="btn-arrow btn-arrow-up" onclick="changeMyDice(1, 1)">⇧</button>
+            <button class="btn-arrow btn-arrow-up" onclick="changeMyDice(2, 1)">⇧</button>
+            <button class="btn-arrow btn-arrow-up" onclick="changeMyDice(3, 1)">⇧</button>
+            <button class="btn-arrow btn-arrow-up" onclick="changeMyDice(4, 1)">⇧</button>
+            <button class="btn-arrow btn-arrow-up" onclick="changeMyDice(5, 1)">⇧</button>
+            <button class="btn-arrow btn-arrow-up" onclick="changeMyDice(6, 1)">⇧</button>
+            <div></div>
+
+            <!-- Flechas Abajo -->
+            <button class="btn-arrow btn-arrow-down" onclick="changeMyDice(1, -1)">⇩</button>
+            <button class="btn-arrow btn-arrow-down" onclick="changeMyDice(2, -1)">⇩</button>
+            <button class="btn-arrow btn-arrow-down" onclick="changeMyDice(3, -1)">⇩</button>
+            <button class="btn-arrow btn-arrow-down" onclick="changeMyDice(4, -1)">⇩</button>
+            <button class="btn-arrow btn-arrow-down" onclick="changeMyDice(5, -1)">⇩</button>
+            <button class="btn-arrow btn-arrow-down" onclick="changeMyDice(6, -1)">⇩</button>
+            <div></div>
+        </div>
+    </div>
+
+    <!-- Panel: Jugada actual -->
+    <div class="panel">
+        <div class="panel-title">Jugada actual</div>
+        <div class="current-play-controls">
+            <div class="current-quantity" id="ui-current-qty">8</div>
+            <div class="play-quantity-arrows">
+                <button class="btn-arrow btn-arrow-up" onclick="changeCurrentQty(1)">⇧</button>
+                <button class="btn-arrow btn-arrow-down" onclick="changeCurrentQty(-1)">⇩</button>
+            </div>
+        </div>
+        <div class="dice-face-selector">
+            <div class="selectable-face" id="sel-face-1" onclick="setCurrentFace(1)">⚀</div>
+            <div class="selectable-face" id="sel-face-2" onclick="setCurrentFace(2)">⚁</div>
+            <div class="selectable-face" id="sel-face-3" onclick="setCurrentFace(3)">⚂</div>
+            <div class="selectable-face" id="sel-face-4" onclick="setCurrentFace(4)">⚃</div>
+            <div class="selectable-face" id="sel-face-5" onclick="setCurrentFace(5)">⚄</div>
+            <div class="selectable-face selected" id="sel-face-6" onclick="setCurrentFace(6)">⚅</div>
+        </div>
+        <div class="results-box">
+            <p class="results-text">Sin tus dados: <strong id="prob-curr-sin">--%</strong></p>
+            <p class="results-text">Con tus dados: <strong id="prob-curr-con">--%</strong></p>
+        </div>
+    </div>
+
+    <!-- Panel: Posibles respuestas -->
+    <div class="panel col-span-full">
+        <div class="panel-title">Posibles respuestas</div>
+        <div class="responses-grid">
+            <!-- Cantidades -->
+            <div class="response-num" id="resp-qty-1">5</div>
+            <div class="response-num" id="resp-qty-2">9</div>
+            <div class="response-num" id="resp-qty-3">9</div>
+            <div class="response-num" id="resp-qty-4">9</div>
+            <div class="response-num" id="resp-qty-5">9</div>
+            <div class="response-num" id="resp-qty-6">9</div>
+            <div></div>
+
+            <!-- Caras -->
+            <div class="dice-face-icon">⚀</div>
+            <div class="dice-face-icon">⚁</div>
+            <div class="dice-face-icon">⚂</div>
+            <div class="dice-face-icon">⚃</div>
+            <div class="dice-face-icon">⚄</div>
+            <div class="dice-face-icon">⚅</div>
+            <div></div>
+
+            <!-- Probabilidades SIN -->
+            <div class="prob-value" id="resp-sin-1">--%</div>
+            <div class="prob-value" id="resp-sin-2">--%</div>
+            <div class="prob-value" id="resp-sin-3">--%</div>
+            <div class="prob-value" id="resp-sin-4">--%</div>
+            <div class="prob-value" id="resp-sin-5">--%</div>
+            <div class="prob-value" id="resp-sin-6">--%</div>
+            <div class="prob-label">sin</div>
+
+            <!-- Probabilidades CON -->
+            <div class="prob-value" id="resp-con-1">--%</div>
+            <div class="prob-value" id="resp-con-2">--%</div>
+            <div class="prob-value" id="resp-con-3">--%</div>
+            <div class="prob-value" id="resp-con-4">--%</div>
+            <div class="prob-value" id="resp-con-5">--%</div>
+            <div class="prob-value" id="resp-con-6">--%</div>
+            <div class="prob-label">con</div>
+        </div>
+    </div>
+</div>
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #e5e5e5;
+    margin: 0;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+}
+
+.main-container {
+    display: grid;
+    /* Adapta automáticamente las columnas según el espacio. Ideal para móviles apaisados */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    width: 100%;
+    max-width: 1100px;
+}
+
+.header {
+    grid-column: 1 / -1;
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.header h1 {
+    color: #333;
+    margin: 5px 0;
+    font-size: 1.5em;
+}
+
+.panel {
+    border: 2px solid #eaeaea;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #fafafa;
+    display: flex;
+    flex-direction: column;
+}
+
+.panel-title {
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 12px;
+    color: #444;
+    font-size: 1.1em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Tipografía de dados y contadores */
+.dice-face-icon { font-size: 2.2em; line-height: 1; color: #222; }
+.dice-count-box, .response-num {
+    font-size: 1.3em;
+    font-weight: bold;
+    background: #e0e0e0;
+    padding: 4px;
+    border-radius: 6px;
+    text-align: center;
+}
+
+/* Áreas de Control */
+.dice-game-controls { display: flex; align-items: center; justify-content: center; gap: 15px; }
+.dice-game-count { font-size: 3.5em; font-weight: bold; color: #222; min-width: 70px; text-align: center; }
+
+/* Grid de Mis Dados */
+.my-dice-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr) 40px;
+    gap: 6px;
+    align-items: center;
+    text-align: center;
+}
+
+/* Jugada actual */
+.current-play-controls { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 15px; }
+.current-quantity { font-size: 3em; font-weight: bold; color: #222; width: 60px; text-align: center; background: #e0e0e0; border-radius: 8px; }
+.play-quantity-arrows { display: flex; flex-direction: column; gap: 5px; }
+
+.dice-face-selector {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr); /* En una sola fila para ahorrar espacio */
+    gap: 5px;
+    margin-bottom: 10px;
+}
+
+.selectable-face {
+    font-size: 2.2em;
+    line-height: 1;
+    cursor: pointer;
+    border: 3px solid transparent;
+    border-radius: 8px;
+    text-align: center;
+    user-select: none;
+    padding: 5px 0;
+    transition: all 0.2s;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.selectable-face.selected {
+    background-color: #00ffff;
+    border-color: #00cccc;
+    transform: scale(1.05);
+}
+
+.results-box {
+    background: #eef2f5;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+}
+.results-text { margin: 3px 0; font-size: 1.05em; color: #333; }
+
+/* Posibles Respuestas */
+.responses-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr) auto;
+    gap: 6px;
+    text-align: center;
+    align-items: center;
+}
+.prob-label { font-weight: bold; font-size: 1em; color: #555; }
+.prob-value { font-size: 1.1em; font-weight: bold; }
+.col-span-full { grid-column: 1 / -1; }
+
+/* BOTONES TÁCTILES OPTIMIZADOS PARA CELULAR */
+.btn-arrow {
+    background: #f1f3f5;
+    border: 1px solid #ccd0d5;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.6em;
+    width: 100%;
+    min-width: 36px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+    touch-action: manipulation; /* Optimiza el toque en móviles */
+    box-shadow: 0 2px 0 #ccd0d5;
+}
+
+.btn-arrow:active {
+    transform: translateY(2px);
+    box-shadow: none;
+}
+
+.btn-arrow-up { color: #28a745; }
+.btn-arrow-down { color: #dc3545; }
+
+.btn-clear {
+    background-color: #ffe5e5;
+    border: 1px solid #ffcccc;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.5em;
+    color: #dc3545;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.limpiar-label { font-size: 0.8em; font-weight: bold; color: #666;}
+
+/* Optimizaciones para apaisado extremo (pantallas muy bajas) */
+@media (max-height: 450px) and (orientation: landscape) {
+    .dice-game-count { font-size: 2.5em; }
+    .current-quantity { font-size: 2.5em; }
+    .dice-face-icon, .selectable-face { font-size: 1.8em; }
+    .btn-arrow { height: 35px; font-size: 1.4em;}
+    .panel { padding: 10px; }
+}
+
+let state = {
+    totalDice: 24,
+    myDice: { 1: 2, 2: 0, 3: 0, 4: 1, 5: 1, 6: 1 },
+    currentQty: 8,
+    currentFace: 6
+};
+
+function changeTotalDice(delta) {
+    state.totalDice = Math.max(1, state.totalDice + delta);
+    updateUI();
+}
+
+function changeMyDice(face, delta) {
+    state.myDice[face] = Math.max(0, state.myDice[face] + delta);
+    let totalMine = Object.values(state.myDice).reduce((a, b) => a + b, 0);
+    if (totalMine > state.totalDice) {
+        state.myDice[face] -= delta; 
+        alert("No puedes tener más dados que el total en juego.");
+    }
+    updateUI();
+}
+
+function clearMyDice() {
+    state.myDice = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+    updateUI();
+}
+
+function changeCurrentQty(delta) {
+    state.currentQty = Math.max(1, state.currentQty + delta);
+    updateUI();
+}
+
+function setCurrentFace(face) {
+    state.currentFace = face;
+    updateUI();
+}
+
+function binomialCoeff(n, k) {
+    if (k > n || k < 0) return 0;
+    if (k > n - k) k = n - k;
+    let res = 1;
+    for (let i = 0; i < k; i++) {
+        res *= (n - i);
+        res /= (i + 1);
+    }
+    return res;
+}
+
+function calculateProbability(targetQty, targetFace, considerMyDice) {
+    let revealed = 0;
+    let relevantCount = 0;
+
+    if (considerMyDice) {
+        revealed = Object.values(state.myDice).reduce((a, b) => a + b, 0);
+        relevantCount = state.myDice[targetFace];
+        if (targetFace !== 1) {
+            relevantCount += state.myDice[1]; 
+        }
+    }
+
+    let remaining = state.totalDice - revealed;
+    if (remaining < 0) return 0; 
+
+    let needed = Math.max(0, targetQty - relevantCount);
+    
+    if (needed === 0) return 100;
+    if (needed > remaining) return 0;
+
+    let p = (targetFace >= 2) ? 2/6 : 1/6;
+    let prob = 0;
+
+    for (let k = needed; k <= remaining; k++) {
+        let binom = binomialCoeff(remaining, k);
+        prob += binom * Math.pow(p, k) * Math.pow(1 - p, remaining - k);
+    }
+
+    return Math.round(prob * 100);
+}
+
+function getNextValidBidQty(currentQty, currentFace, nextFace) {
+    if (currentFace === 1 && nextFace !== 1) {
+        return currentQty * 2 + 1; 
+    } else if (currentFace !== 1 && nextFace === 1) {
+        return Math.floor(currentQty / 2) + 1; 
+    } else {
+        return (nextFace <= currentFace) ? currentQty + 1 : currentQty;
+    }
+}
+
+function updateUI() {
+    document.getElementById('ui-total-dice').innerText = state.totalDice;
+    document.getElementById('ui-current-qty').innerText = state.currentQty;
+
+    for (let i = 1; i <= 6; i++) {
+        document.getElementById(`my-dice-${i}`).innerText = state.myDice[i];
+        
+        let faceElement = document.getElementById(`sel-face-${i}`);
+        if (i === state.currentFace) {
+            faceElement.classList.add('selected');
+        } else {
+            faceElement.classList.remove('selected');
+        }
+    }
+
+    let probCurrSin = calculateProbability(state.currentQty, state.currentFace, false);
+    let probCurrCon = calculateProbability(state.currentQty, state.currentFace, true);
+    
+    document.getElementById('prob-curr-sin').innerText = probCurrSin + '%';
+    document.getElementById('prob-curr-con').innerText = probCurrCon + '%';
+
+    for (let targetFace = 1; targetFace <= 6; targetFace++) {
+        let targetQty = getNextValidBidQty(state.currentQty, state.currentFace, targetFace);
+        document.getElementById(`resp-qty-${targetFace}`).innerText = targetQty;
+
+        let probRespSin = calculateProbability(targetQty, targetFace, false);
+        let probRespCon = calculateProbability(targetQty, targetFace, true);
+
+        document.getElementById(`resp-sin-${targetFace}`).innerText = probRespSin + '%';
+        document.getElementById(`resp-con-${targetFace}`).innerText = probRespCon + '%';
+    }
+}
+
+window.onload = updateUI;
