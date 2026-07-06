@@ -161,9 +161,9 @@
                 <div class="dice-face-icon">⚂</div><div class="dice-face-icon">⚃</div>
                 <div class="dice-face-icon">⚄</div><div class="dice-face-icon">⚅</div>
 
-                <div class="dice-count-box" id="my-dice-1">2</div><div class="dice-count-box" id="my-dice-2">0</div>
-                <div class="dice-count-box" id="my-dice-3">0</div><div class="dice-count-box" id="my-dice-4">1</div>
-                <div class="dice-count-box" id="my-dice-5">1</div><div class="dice-count-box" id="my-dice-6">1</div>
+                <div class="dice-count-box" id="my-dice-1">0</div><div class="dice-count-box" id="my-dice-2">0</div>
+                <div class="dice-count-box" id="my-dice-3">0</div><div class="dice-count-box" id="my-dice-4">0</div>
+                <div class="dice-count-box" id="my-dice-5">0</div><div class="dice-count-box" id="my-dice-6">0</div>
 
                 <button class="btn-arrow btn-arrow-up" onclick="changeMyDice(1, 1)">⇧</button>
                 <button class="btn-arrow btn-arrow-up" onclick="changeMyDice(2, 1)">⇧</button>
@@ -185,19 +185,19 @@
         <div class="panel">
             <div class="panel-title">Jugada actual</div>
             <div class="current-play-controls">
-                <div class="current-quantity" id="ui-current-qty">5</div>
+                <div class="current-quantity" id="ui-current-qty">8</div>
                 <div class="play-quantity-arrows">
                     <button class="btn-arrow btn-arrow-up" onclick="changeCurrentQty(1)">⇧</button>
                     <button class="btn-arrow btn-arrow-down" onclick="changeCurrentQty(-1)">⇩</button>
                 </div>
             </div>
             <div class="dice-face-selector">
-                <div class="selectable-face selected" id="sel-face-1" onclick="setCurrentFace(1)">⚀</div>
+                <div class="selectable-face" id="sel-face-1" onclick="setCurrentFace(1)">⚀</div>
                 <div class="selectable-face" id="sel-face-2" onclick="setCurrentFace(2)">⚁</div>
                 <div class="selectable-face" id="sel-face-3" onclick="setCurrentFace(3)">⚂</div>
                 <div class="selectable-face" id="sel-face-4" onclick="setCurrentFace(4)">⚃</div>
                 <div class="selectable-face" id="sel-face-5" onclick="setCurrentFace(5)">⚄</div>
-                <div class="selectable-face" id="sel-face-6" onclick="setCurrentFace(6)">⚅</div>
+                <div class="selectable-face selected" id="sel-face-6" onclick="setCurrentFace(6)">⚅</div>
             </div>
             <div class="results-box">
                 <p class="results-text">Sin tus dados: <strong id="prob-curr-sin">--%</strong></p>
@@ -209,12 +209,12 @@
         <div class="panel col-span-full">
             <div class="panel-title">Posibles respuestas</div>
             <div class="responses-grid">
-                <div class="response-num" id="resp-qty-1" onclick="applyResponse(1)">6</div>
-                <div class="response-num" id="resp-qty-2" onclick="applyResponse(2)">10</div>
-                <div class="response-num" id="resp-qty-3" onclick="applyResponse(3)">10</div>
-                <div class="response-num" id="resp-qty-4" onclick="applyResponse(4)">10</div>
-                <div class="response-num" id="resp-qty-5" onclick="applyResponse(5)">10</div>
-                <div class="response-num" id="resp-qty-6" onclick="applyResponse(6)">10</div><div></div>
+                <div class="response-num" id="resp-qty-1" onclick="applyResponse(1)">4</div>
+                <div class="response-num" id="resp-qty-2" onclick="applyResponse(2)">9</div>
+                <div class="response-num" id="resp-qty-3" onclick="applyResponse(3)">9</div>
+                <div class="response-num" id="resp-qty-4" onclick="applyResponse(4)">9</div>
+                <div class="response-num" id="resp-qty-5" onclick="applyResponse(5)">9</div>
+                <div class="response-num" id="resp-qty-6" onclick="applyResponse(6)">9</div><div></div>
                 
                 <div class="dice-face-icon">⚀</div><div class="dice-face-icon">⚁</div>
                 <div class="dice-face-icon">⚂</div><div class="dice-face-icon">⚃</div>
@@ -234,12 +234,17 @@
     </div>
 
 <script>
-    let state = { totalDice: 24, myDice: { 1: 2, 2: 0, 3: 0, 4: 1, 5: 1, 6: 1 }, currentQty: 5, currentFace: 1 };
+    let state = { totalDice: 24, myDice: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 }, currentQty: 8, currentFace: 6 };
 
     function changeTotalDice(delta) { 
         state.totalDice = Math.max(1, state.totalDice + delta); 
+        // Limpiar mis dados por completo
         state.myDice = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 }; 
-        state.currentQty = 1;
+        
+        // REGLA DE APERTURA: Establecer una buena primera jugada en base al total (Total / 3) en Seises
+        state.currentQty = Math.max(1, Math.floor(state.totalDice / 3));
+        state.currentFace = 6; 
+        
         updateUI(); 
     }
 
@@ -294,7 +299,6 @@
             
             let qty;
             if (state.currentFace === 1) {
-                // CORRECCIÓN: Al salir de Ases a normal, es exactamente el doble (Ases * 2)
                 qty = (f === 1) ? state.currentQty + 1 : (state.currentQty * 2);
             } else {
                 qty = (f === 1) ? Math.ceil(state.currentQty / 2) : state.currentQty + 1;
