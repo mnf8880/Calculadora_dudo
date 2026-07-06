@@ -101,13 +101,6 @@
         .btn-arrow-up { color: #28a745; }
         .btn-arrow-down { color: #dc3545; }
 
-        .btn-clear {
-            background-color: #ffe5e5; border: 1px solid #ffcccc; border-radius: 8px;
-            cursor: pointer; font-size: 1.5em; color: #dc3545; height: 40px;
-            display: flex; justify-content: center; align-items: center;
-        }
-        .limpiar-label { font-size: 0.8em; font-weight: bold; color: #666;}
-
         @media (max-height: 450px) and (orientation: landscape) {
             .dice-game-count { font-size: 2.5em; }
             .current-quantity { font-size: 2.5em; }
@@ -159,15 +152,13 @@
         <div class="header"><h1>🎲 Cálculo DUDO</h1></div>
 
         <div class="panel">
-            <div class="panel-title">Dados en juego</div>
-            <div class="dice-game-controls">
-                <div class="dice-game-count" id="ui-total-dice">24</div>
-                <button class="btn-arrow btn-arrow-up" onclick="changeTotalDice(1)">⇧</button>
-                <button class="btn-arrow btn-arrow-down" onclick="changeTotalDice(-1)">⇩</button>
-            </div>
-            <!-- Nuevo botón de Siguiente Ronda -->
-            <button class="btn-next-round" onclick="nextRound()">Siguiente Ronda ➔</button>
-        </div>
+    <div class="panel-title">Dados en juego</div>
+    <div class="dice-game-controls">
+        <div class="dice-game-count" id="ui-total-dice">24</div>
+        <button class="btn-arrow btn-arrow-up" onclick="changeTotalDice(1)">⇧</button>
+        <button class="btn-arrow btn-arrow-down" onclick="changeTotalDice(-1)">⇩</button>
+    </div>
+</div>
 
         <div class="panel">
             <div class="panel-title">Mis dados</div>
@@ -175,7 +166,7 @@
                 <div class="dice-face-icon">⚀</div><div class="dice-face-icon">⚁</div>
                 <div class="dice-face-icon">⚂</div><div class="dice-face-icon">⚃</div>
                 <div class="dice-face-icon">⚄</div><div class="dice-face-icon">⚅</div>
-                <div class="limpiar-label">Limp.</div>
+                <div></div>
 
                 <div class="dice-count-box" id="my-dice-1">2</div><div class="dice-count-box" id="my-dice-2">0</div>
                 <div class="dice-count-box" id="my-dice-3">0</div><div class="dice-count-box" id="my-dice-4">1</div>
@@ -248,140 +239,100 @@
         </div>
     </div>
 
-    <script>
-        let state = { totalDice: 24, myDice: { 1: 2, 2: 0, 3: 0, 4: 1, 5: 1, 6: 1 }, currentQty: 8, currentFace: 6 };
+<script>
+        let state = { totalDice: 24, myDice: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 }, currentQty: 8, currentFace: 6 };
 
-        function changeTotalDice(delta) { state.totalDice = Math.max(1, state.totalDice + delta); updateUI(); }
+        function recalculateInitialBid() {
+            let misDados = Object.values(state.myDice).reduce((a, b) => a + b, 0);
+            let dadosOcultos = state.totalDice - misDados;
+            let misDadosValidos = state.myDice[6] + state.myDice[1];
+            let sugerencia = misDadosValidos + Math.floor(dadosOcultos / 3);
+            
+            state.currentQty = Math.max(1, sugerencia);
+            state.currentFace = 6;
+        }
+
+        function changeTotalDice(delta) { 
+            state.totalDice = Math.max(1, state.totalDice + delta); 
+            state.myDice = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+            recalculateInitialBid();
+            updateUI(); 
+        }
+
         function changeMyDice(face, delta) {
             state.myDice[face] = Math.max(0, state.myDice[face] + delta);
             if (Object.values(state.myDice).reduce((a, b) => a + b, 0) > state.totalDice) { state.myDice[face] -= delta; }
             updateUI();
         }
-        function clearMyDice() { state.myDice = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 }; updateUI(); }
-        function nextRound() {
-            // 1. Alguien pierde, así que restamos 1 dado al total general
-            state.totalDice = Math.max(1, state.totalDice - 1);
-            
-            // 2. Limpiamos "Mis dados" para la nueva tirada
-            state.myDice = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
-            
-            // 3. Calculamos la jugada inicial recomendada (Un tercio de los dados)
-            // Usamos Math.floor para redondear hacia abajo. (Ej: 25 / 3 = 8.33 -> 8)
-            let safeBid = Math.floor(state.totalDice / 3);
-            
-            state.currentQty = Math.max(1, safeBid); 
-            state.currentFace = 6; // Seleccionamos la cara 6 por defecto
+
+        function clearMyDice() { 
+            state.myDice = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 }; 
+            updateUI(); 
         }
-            updateUI();
+
         function changeCurrentQty(delta) { state.currentQty = Math.max(1, state.currentQty + delta); updateUI(); }
         function setCurrentFace(face) { state.currentFace = face; updateUI(); }
 
+       // Cálculo de probabilidad binomial
         function binomialCoeff(n, k) {
-            if (k > n || k < 0) return 0;
-            if (k > n - k) k = n - k;
-            let res = 1; for (let i = 0; i < k; i++) { res *= (n - i); res /= (i + 1); } return res;
+            if (k < 0 || k > n) return 0;
+            if (k === 0 || k === n) return 1;
+            if (k > n / 2) k = n - k;
+            let res = 1;
+            for (let i = 1; i <= k; i++) res = res * (n - i + 1) / i;
+            return res;
         }
 
-        function calculateProbability(targetQty, targetFace, considerMyDice) {
-            let revealed = 0, relevantCount = 0;
-            if (considerMyDice) {
-                revealed = Object.values(state.myDice).reduce((a, b) => a + b, 0);
-                relevantCount = state.myDice[targetFace];
-                if (targetFace !== 1) relevantCount += state.myDice[1];
+        function calculateProbability(n, k, p) {
+            let prob = 0;
+            for (let i = k; i <= n; i++) {
+                prob += binomialCoeff(n, i) * Math.pow(p, i) * Math.pow(1 - p, n - i);
             }
-            let remaining = state.totalDice - revealed;
-            if (remaining < 0) return 0;
-            let needed = Math.max(0, targetQty - relevantCount);
-            if (needed === 0) return 100;
-            if (needed > remaining) return 0;
-
-            let p = (targetFace >= 2) ? 2/6 : 1/6, prob = 0;
-            for (let k = needed; k <= remaining; k++) {
-                prob += binomialCoeff(remaining, k) * Math.pow(p, k) * Math.pow(1 - p, remaining - k);
-            }
-            return Math.round(prob * 100);
+            return prob;
         }
 
-        function getNextValidBidQty(currentQty, currentFace, nextFace) {
-            // De Ases a otra cara: El doble exacto
-            if (currentFace === 1 && nextFace !== 1) {
-                return currentQty * 2; 
-            }
-            // De otra cara a Ases: mitad + 1 (par) o redondear hacia arriba (impar)
-            if (currentFace !== 1 && nextFace === 1) {
-                return Math.floor(currentQty / 2) + 1; 
-            }
-            // Mismo palo o subir de cara
-            return (nextFace <= currentFace) ? currentQty + 1 : currentQty;
-        }
-        
-        function applyResponse(targetFace) {
-            let targetQty = getNextValidBidQty(state.currentQty, state.currentFace, targetFace);
-            state.currentQty = targetQty;
-            state.currentFace = targetFace;
-            updateUI();
-        }
-        
         function updateUI() {
+            // Actualizar total dados y mis dados
             document.getElementById('ui-total-dice').innerText = state.totalDice;
-            document.getElementById('ui-current-qty').innerText = state.currentQty;
             for (let i = 1; i <= 6; i++) {
                 document.getElementById(`my-dice-${i}`).innerText = state.myDice[i];
-                let faceElement = document.getElementById(`sel-face-${i}`);
-                if (i === state.currentFace) faceElement.classList.add('selected');
-                else faceElement.classList.remove('selected');
+                document.getElementById(`sel-face-${i}`).classList.toggle('selected', state.currentFace === i);
             }
-            document.getElementById('prob-curr-sin').innerText = calculateProbability(state.currentQty, state.currentFace, false) + '%';
-            document.getElementById('prob-curr-con').innerText = calculateProbability(state.currentQty, state.currentFace, true) + '%';
+            document.getElementById('ui-current-qty').innerText = state.currentQty;
 
-            // --- NUEVO CÓDIGO: Semáforo para la mejor jugada ---
-            
-            // Paso 1: Calcular todas las opciones y encontrar la probabilidad más alta
-            let maxProb = -1;
-            let probs = [];
-            let qtys = [];
-            
-            for (let targetFace = 1; targetFace <= 6; targetFace++) {
-                let targetQty = getNextValidBidQty(state.currentQty, state.currentFace, targetFace);
-                let probRespCon = calculateProbability(targetQty, targetFace, true);
-                
-                qtys[targetFace] = targetQty;
-                probs[targetFace] = probRespCon;
-                
-                if (probRespCon > maxProb) {
-                    maxProb = probRespCon;
-                }
-            }
+            // Cálculos
+            let misDadosTotal = Object.values(state.myDice).reduce((a, b) => a + b, 0);
+            let dadosOcultos = state.totalDice - misDadosTotal;
+            let p = (state.currentFace === 1) ? 1/6 : 1/3;
 
-            // Paso 2: Actualizar la pantalla y pintar solo la mejor opción
-            for (let targetFace = 1; targetFace <= 6; targetFace++) {
-                document.getElementById(`resp-qty-${targetFace}`).innerText = qtys[targetFace];
-                document.getElementById(`resp-sin-${targetFace}`).innerText = calculateProbability(qtys[targetFace], targetFace, false) + '%';
-                document.getElementById(`resp-con-${targetFace}`).innerText = probs[targetFace] + '%';
+            // Probabilidad sin contar mis dados (solo dados ocultos)
+            let probSin = calculateProbability(dadosOcultos, state.currentQty, p);
+            // Probabilidad contando mis dados (mis dados de esa cara + dados ocultos)
+            let misDadosEsaCara = state.myDice[state.currentFace] + (state.currentFace === 1 ? 0 : state.myDice[1]);
+            let probCon = calculateProbability(dadosOcultos, Math.max(0, state.currentQty - misDadosEsaCara), p);
 
-                let btn = document.getElementById(`resp-qty-${targetFace}`);
+            document.getElementById('prob-curr-sin').innerText = (probSin * 100).toFixed(1) + '%';
+            document.getElementById('prob-curr-con').innerText = (probCon * 100).toFixed(1) + '%';
+
+            // Actualizar tabla de respuestas
+            for (let f = 1; f <= 6; f++) {
+                let qty = (f === 1) ? Math.ceil(state.currentQty / 2) : state.currentQty + 1;
+                document.getElementById(`resp-qty-${f}`).innerText = qty;
                 
-                // Reiniciamos el color al gris por defecto para todas
-                btn.style.backgroundColor = '';
-                btn.style.color = '';
+                let pSin = calculateProbability(dadosOcultos, qty, (f === 1 ? 1/6 : 1/3));
+                let pCon = calculateProbability(dadosOcultos, Math.max(0, qty - (state.myDice[f] + (f === 1 ? 0 : state.myDice[1]))), (f === 1 ? 1/6 : 1/3));
                 
-                // Si esta jugada empata con la probabilidad máxima, aplicamos el semáforo
-                if (probs[targetFace] === maxProb) {
-                    if (maxProb >= 60) {
-                        btn.style.backgroundColor = '#d4edda'; // Verde (¡Dale con confianza!)
-                        btn.style.color = '#155724';
-                    } else if (maxProb >= 30) {
-                        btn.style.backgroundColor = '#fff3cd'; // Amarillo (Precaución)
-                        btn.style.color = '#856404';
-                    } else {
-                        btn.style.backgroundColor = '#f8d7da'; // Rojo (¡Mejor dudar!)
-                        btn.style.color = '#721c24';
-                    }
-                }
+                document.getElementById(`resp-sin-${f}`).innerText = (pSin * 100).toFixed(0) + '%';
+                document.getElementById(`resp-con-${f}`).innerText = (pCon * 100).toFixed(0) + '%';
             }
         }
+
+        function applyResponse(face) {
+            state.currentFace = face;
+            state.currentQty = parseInt(document.getElementById(`resp-qty-${face}`).innerText);
+            updateUI();
+        }
+
        
         window.onload = updateUI;
     </script>
-</body>
-</html>
