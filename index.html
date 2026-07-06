@@ -271,7 +271,7 @@
             
             state.currentQty = Math.max(1, safeBid); 
             state.currentFace = 6; // Seleccionamos la cara 6 por defecto
-            
+        }
             updateUI();
         function changeCurrentQty(delta) { state.currentQty = Math.max(1, state.currentQty + delta); updateUI(); }
         function setCurrentFace(face) { state.currentFace = face; updateUI(); }
