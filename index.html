@@ -109,6 +109,11 @@
             .panel { padding: 10px; }
         }
 
+        /* Colores de semáforo */
+.risk-green { background-color: #28a745 !important; color: white !important; border: 2px solid #1e7e34 !important; }
+.risk-red { background-color: #dc3545 !important; color: white !important; border: 2px solid #bd2130 !important; }
+.risk-yellow { background-color: #ffc107 !important; color: black !important; border: 2px solid #d39e00 !important; }
+
         /* Efecto de botón para las respuestas */
         .response-num {
             cursor: pointer;
@@ -212,10 +217,6 @@
             </div>
         </div>
 
-        /* Colores de semáforo */
-        .risk-green { background-color: #28a745 !important; color: white !important; }
-        .risk-red { background-color: #dc3545 !important; color: white !important; }
-        .risk-yellow { background-color: #ffc107 !important; color: black !important; }
 
         <div class="panel col-span-full">
             <div class="panel-title">Posibles respuestas</div>
@@ -245,141 +246,100 @@
     </div>
 
 <script>
-        let state = { totalDice: 24, myDice: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 }, currentQty: 8, currentFace: 6 };
+    let state = { totalDice: 24, myDice: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 }, currentQty: 8, currentFace: 6 };
 
-        function recalculateInitialBid() {
-            let misDados = Object.values(state.myDice).reduce((a, b) => a + b, 0);
-            let dadosOcultos = state.totalDice - misDados;
-            let misDadosValidos = state.myDice[6] + state.myDice[1];
-            let sugerencia = misDadosValidos + Math.floor(dadosOcultos / 3);
-            
-            state.currentQty = Math.max(1, sugerencia);
-            state.currentFace = 6;
-        }
-
-        function changeTotalDice(delta) { 
-            state.totalDice = Math.max(1, state.totalDice + delta); 
-            state.myDice = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
-            recalculateInitialBid();
-            updateUI(); 
-        }
-
-        function changeMyDice(face, delta) {
-            state.myDice[face] = Math.max(0, state.myDice[face] + delta);
-            if (Object.values(state.myDice).reduce((a, b) => a + b, 0) > state.totalDice) { state.myDice[face] -= delta; }
-            updateUI();
-        }
-
-        function clearMyDice() { 
-            state.myDice = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 }; 
-            updateUI(); 
-        }
-
-        function changeCurrentQty(delta) { state.currentQty = Math.max(1, state.currentQty + delta); updateUI(); }
-        function setCurrentFace(face) { state.currentFace = face; updateUI(); }
-
-       // Cálculo de probabilidad binomial
-        function binomialCoeff(n, k) {
-            if (k < 0 || k > n) return 0;
-            if (k === 0 || k === n) return 1;
-            if (k > n / 2) k = n - k;
-            let res = 1;
-            for (let i = 1; i <= k; i++) res = res * (n - i + 1) / i;
-            return res;
-        }
-
-        function calculateProbability(n, k, p) {
-            let prob = 0;
-            for (let i = k; i <= n; i++) {
-                prob += binomialCoeff(n, i) * Math.pow(p, i) * Math.pow(1 - p, n - i);
-            }
-            return prob;
-        }
-
-        function updateUI() {
-            // Actualizar total dados y mis dados
-            document.getElementById('ui-total-dice').innerText = state.totalDice;
-            for (let i = 1; i <= 6; i++) {
-                document.getElementById(`my-dice-${i}`).innerText = state.myDice[i];
-                document.getElementById(`sel-face-${i}`).classList.toggle('selected', state.currentFace === i);
-            }
-            document.getElementById('ui-current-qty').innerText = state.currentQty;
-
-            // Cálculos
-            let misDadosTotal = Object.values(state.myDice).reduce((a, b) => a + b, 0);
-            let dadosOcultos = state.totalDice - misDadosTotal;
-            let p = (state.currentFace === 1) ? 1/6 : 1/3;
-
-            // Probabilidad sin contar mis dados (solo dados ocultos)
-            let probSin = calculateProbability(dadosOcultos, state.currentQty, p);
-            // Probabilidad contando mis dados (mis dados de esa cara + dados ocultos)
-            let misDadosEsaCara = state.myDice[state.currentFace] + (state.currentFace === 1 ? 0 : state.myDice[1]);
-            let probCon = calculateProbability(dadosOcultos, Math.max(0, state.currentQty - misDadosEsaCara), p);
-
-            document.getElementById('prob-curr-sin').innerText = (probSin * 100).toFixed(1) + '%';
-            document.getElementById('prob-curr-con').innerText = (probCon * 100).toFixed(1) + '%';
-
-            // Actualizar tabla de respuestas
-            for (let f = 1; f <= 6; f++) {
-                let qty = (f === 1) ? Math.ceil(state.currentQty / 2) : state.currentQty + 1;
-                document.getElementById(`resp-qty-${f}`).innerText = qty;
-                
-                let pSin = calculateProbability(dadosOcultos, qty, (f === 1 ? 1/6 : 1/3));
-                let pCon = calculateProbability(dadosOcultos, Math.max(0, qty - (state.myDice[f] + (f === 1 ? 0 : state.myDice[1]))), (f === 1 ? 1/6 : 1/3));
-                
-                document.getElementById(`resp-sin-${f}`).innerText = (pSin * 100).toFixed(0) + '%';
-                document.getElementById(`resp-con-${f}`).innerText = (pCon * 100).toFixed(0) + '%';
-            }
-        }
-
-        function applyResponse(face) {
-            state.currentFace = face;
-            state.currentQty = parseInt(document.getElementById(`resp-qty-${face}`).innerText);
-            updateUI();
-        }
-function updateUI() {
-    // 1. Actualización básica
-    document.getElementById('ui-total-dice').innerText = state.totalDice;
-    for (let i = 1; i <= 6; i++) {
-        document.getElementById(`my-dice-${i}`).innerText = state.myDice[i];
-        document.getElementById(`sel-face-${i}`).classList.toggle('selected', state.currentFace === i);
+    function recalculateInitialBid() {
+        let misDados = Object.values(state.myDice).reduce((a, b) => a + b, 0);
+        let dadosOcultos = state.totalDice - misDados;
+        let misDadosValidos = state.myDice[6] + state.myDice[1];
+        let sugerencia = misDadosValidos + Math.floor(dadosOcultos / 3);
+        state.currentQty = Math.max(1, sugerencia);
+        state.currentFace = 6;
     }
-    document.getElementById('ui-current-qty').innerText = state.currentQty;
 
-    // 2. Cálculo de probabilidades actuales
-    let misDadosTotal = Object.values(state.myDice).reduce((a, b) => a + b, 0);
-    let dadosOcultos = state.totalDice - misDadosTotal;
-    let p = (state.currentFace === 1) ? 1/6 : 1/3;
-    let misDadosEsaCara = state.myDice[state.currentFace] + (state.currentFace === 1 ? 0 : state.myDice[1]);
-
-    let probSin = calculateProbability(dadosOcultos, state.currentQty, p);
-    let probCon = calculateProbability(dadosOcultos, Math.max(0, state.currentQty - misDadosEsaCara), p);
-
-    document.getElementById('prob-curr-sin').innerText = (probSin * 100).toFixed(1) + '%';
-    document.getElementById('prob-curr-con').innerText = (probCon * 100).toFixed(1) + '%';
-
-    // 3. Lógica de semáforo para botones de respuesta
-    for (let f = 1; f <= 6; f++) {
-        let btn = document.getElementById(`resp-qty-${f}`);
-        let qty = (f === 1) ? Math.ceil(state.currentQty / 2) : state.currentQty + 1;
-        btn.innerText = qty;
-
-        // Calcular probabilidad para este botón específico
-        let pRes = calculateProbability(dadosOcultos, Math.max(0, qty - (state.myDice[f] + (f === 1 ? 0 : state.myDice[1]))), (f === 1 ? 1/6 : 1/3)) * 100;
-
-        // Limpiar clases previas
-        btn.classList.remove('risk-green', 'risk-red', 'risk-yellow');
-
-        // Aplicar color según riesgo
-        if (pRes >= 60) btn.classList.add('risk-green');
-        else if (pRes < 40) btn.classList.add('risk-red');
-        else btn.classList.add('risk-yellow');
-
-        // Actualizar los textos de % de la tabla inferior
-        document.getElementById(`resp-sin-${f}`).innerText = (calculateProbability(dadosOcultos, qty, (f === 1 ? 1/6 : 1/3)) * 100).toFixed(0) + '%';
-        document.getElementById(`resp-con-${f}`).innerText = pRes.toFixed(0) + '%';
+    function changeTotalDice(delta) { 
+        state.totalDice = Math.max(1, state.totalDice + delta); 
+        // Nota: Reiniciar dados al cambiar total es opcional, lo dejo según tu código original
+        state.myDice = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 }; 
+        recalculateInitialBid();
+        updateUI(); 
     }
-}
-       
-        window.onload = updateUI;
-    </script>
+
+    function changeMyDice(face, delta) {
+        state.myDice[face] = Math.max(0, state.myDice[face] + delta);
+        if (Object.values(state.myDice).reduce((a, b) => a + b, 0) > state.totalDice) { state.myDice[face] -= delta; }
+        updateUI();
+    }
+
+    function clearMyDice() { 
+        state.myDice = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 }; 
+        updateUI(); 
+    }
+
+    function changeCurrentQty(delta) { state.currentQty = Math.max(1, state.currentQty + delta); updateUI(); }
+    function setCurrentFace(face) { state.currentFace = face; updateUI(); }
+
+    function binomialCoeff(n, k) {
+        if (k < 0 || k > n) return 0;
+        if (k === 0 || k === n) return 1;
+        if (k > n / 2) k = n - k;
+        let res = 1;
+        for (let i = 1; i <= k; i++) res = res * (n - i + 1) / i;
+        return res;
+    }
+
+    function calculateProbability(n, k, p) {
+        let prob = 0;
+        for (let i = k; i <= n; i++) {
+            prob += binomialCoeff(n, i) * Math.pow(p, i) * Math.pow(1 - p, n - i);
+        }
+        return prob;
+    }
+
+    function updateUI() {
+        // 1. Actualización básica
+        document.getElementById('ui-total-dice').innerText = state.totalDice;
+        for (let i = 1; i <= 6; i++) {
+            document.getElementById(`my-dice-${i}`).innerText = state.myDice[i];
+            document.getElementById(`sel-face-${i}`).classList.toggle('selected', state.currentFace === i);
+        }
+        document.getElementById('ui-current-qty').innerText = state.currentQty;
+
+        // 2. Cálculo de probabilidades actuales
+        let misDadosTotal = Object.values(state.myDice).reduce((a, b) => a + b, 0);
+        let dadosOcultos = state.totalDice - misDadosTotal;
+        let p = (state.currentFace === 1) ? 1/6 : 1/3;
+        let misDadosEsaCara = state.myDice[state.currentFace] + (state.currentFace === 1 ? 0 : state.myDice[1]);
+
+        let probSin = calculateProbability(dadosOcultos, state.currentQty, p);
+        let probCon = calculateProbability(dadosOcultos, Math.max(0, state.currentQty - misDadosEsaCara), p);
+
+        document.getElementById('prob-curr-sin').innerText = (probSin * 100).toFixed(1) + '%';
+        document.getElementById('prob-curr-con').innerText = (probCon * 100).toFixed(1) + '%';
+
+        // 3. Lógica de semáforo para botones de respuesta
+        for (let f = 1; f <= 6; f++) {
+            let btn = document.getElementById(`resp-qty-${f}`);
+            let qty = (f === 1) ? Math.ceil(state.currentQty / 2) : state.currentQty + 1;
+            btn.innerText = qty;
+
+            let pRes = calculateProbability(dadosOcultos, Math.max(0, qty - (state.myDice[f] + (f === 1 ? 0 : state.myDice[1]))), (f === 1 ? 1/6 : 1/3)) * 100;
+
+            btn.classList.remove('risk-green', 'risk-red', 'risk-yellow');
+            if (pRes >= 60) btn.classList.add('risk-green');
+            else if (pRes < 40) btn.classList.add('risk-red');
+            else btn.classList.add('risk-yellow');
+
+            document.getElementById(`resp-sin-${f}`).innerText = (calculateProbability(dadosOcultos, qty, (f === 1 ? 1/6 : 1/3)) * 100).toFixed(0) + '%';
+            document.getElementById(`resp-con-${f}`).innerText = pRes.toFixed(0) + '%';
+        }
+    }
+
+    function applyResponse(face) {
+        state.currentFace = face;
+        state.currentQty = parseInt(document.getElementById(`resp-qty-${face}`).innerText);
+        updateUI();
+    }
+
+    window.onload = updateUI;
+</script>
