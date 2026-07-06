@@ -212,6 +212,11 @@
             </div>
         </div>
 
+        /* Colores de semáforo */
+        .risk-green { background-color: #28a745 !important; color: white !important; }
+        .risk-red { background-color: #dc3545 !important; color: white !important; }
+        .risk-yellow { background-color: #ffc107 !important; color: black !important; }
+
         <div class="panel col-span-full">
             <div class="panel-title">Posibles respuestas</div>
             <div class="responses-grid">
@@ -332,7 +337,49 @@
             state.currentQty = parseInt(document.getElementById(`resp-qty-${face}`).innerText);
             updateUI();
         }
+function updateUI() {
+    // 1. Actualización básica
+    document.getElementById('ui-total-dice').innerText = state.totalDice;
+    for (let i = 1; i <= 6; i++) {
+        document.getElementById(`my-dice-${i}`).innerText = state.myDice[i];
+        document.getElementById(`sel-face-${i}`).classList.toggle('selected', state.currentFace === i);
+    }
+    document.getElementById('ui-current-qty').innerText = state.currentQty;
 
+    // 2. Cálculo de probabilidades actuales
+    let misDadosTotal = Object.values(state.myDice).reduce((a, b) => a + b, 0);
+    let dadosOcultos = state.totalDice - misDadosTotal;
+    let p = (state.currentFace === 1) ? 1/6 : 1/3;
+    let misDadosEsaCara = state.myDice[state.currentFace] + (state.currentFace === 1 ? 0 : state.myDice[1]);
+
+    let probSin = calculateProbability(dadosOcultos, state.currentQty, p);
+    let probCon = calculateProbability(dadosOcultos, Math.max(0, state.currentQty - misDadosEsaCara), p);
+
+    document.getElementById('prob-curr-sin').innerText = (probSin * 100).toFixed(1) + '%';
+    document.getElementById('prob-curr-con').innerText = (probCon * 100).toFixed(1) + '%';
+
+    // 3. Lógica de semáforo para botones de respuesta
+    for (let f = 1; f <= 6; f++) {
+        let btn = document.getElementById(`resp-qty-${f}`);
+        let qty = (f === 1) ? Math.ceil(state.currentQty / 2) : state.currentQty + 1;
+        btn.innerText = qty;
+
+        // Calcular probabilidad para este botón específico
+        let pRes = calculateProbability(dadosOcultos, Math.max(0, qty - (state.myDice[f] + (f === 1 ? 0 : state.myDice[1]))), (f === 1 ? 1/6 : 1/3)) * 100;
+
+        // Limpiar clases previas
+        btn.classList.remove('risk-green', 'risk-red', 'risk-yellow');
+
+        // Aplicar color según riesgo
+        if (pRes >= 60) btn.classList.add('risk-green');
+        else if (pRes < 40) btn.classList.add('risk-red');
+        else btn.classList.add('risk-yellow');
+
+        // Actualizar los textos de % de la tabla inferior
+        document.getElementById(`resp-sin-${f}`).innerText = (calculateProbability(dadosOcultos, qty, (f === 1 ? 1/6 : 1/3)) * 100).toFixed(0) + '%';
+        document.getElementById(`resp-con-${f}`).innerText = pRes.toFixed(0) + '%';
+    }
+}
        
         window.onload = updateUI;
     </script>
