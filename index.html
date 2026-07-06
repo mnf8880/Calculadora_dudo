@@ -115,6 +115,21 @@
             .btn-arrow { height: 35px; font-size: 1.4em;}
             .panel { padding: 10px; }
         }
+
+        /* Efecto de botón para las respuestas */
+        .response-num {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .response-num:hover {
+            background-color: #d0d0d0;
+            transform: translateY(-2px);
+        }
+        .response-num:active {
+            transform: scale(0.95);
+            box-shadow: none;
+        }
     </style>
 </head>
 <body>
@@ -185,10 +200,13 @@
         <div class="panel col-span-full">
             <div class="panel-title">Posibles respuestas</div>
             <div class="responses-grid">
-                <div class="response-num" id="resp-qty-1">5</div><div class="response-num" id="resp-qty-2">9</div>
-                <div class="response-num" id="resp-qty-3">9</div><div class="response-num" id="resp-qty-4">9</div>
-                <div class="response-num" id="resp-qty-5">9</div><div class="response-num" id="resp-qty-6">9</div><div></div>
-
+                <div class="response-num" id="resp-qty-1" onclick="applyResponse(1)">5</div>
+                <div class="response-num" id="resp-qty-2" onclick="applyResponse(2)">9</div>
+                <div class="response-num" id="resp-qty-3" onclick="applyResponse(3)">9</div>
+                <div class="response-num" id="resp-qty-4" onclick="applyResponse(4)">9</div>
+                <div class="response-num" id="resp-qty-5" onclick="applyResponse(5)">9</div>
+                <div class="response-num" id="resp-qty-6" onclick="applyResponse(6)">9</div><div></div>
+                
                 <div class="dice-face-icon">⚀</div><div class="dice-face-icon">⚁</div>
                 <div class="dice-face-icon">⚂</div><div class="dice-face-icon">⚃</div>
                 <div class="dice-face-icon">⚄</div><div class="dice-face-icon">⚅</div><div></div>
@@ -256,6 +274,13 @@
             }
             // Mismo palo o subir de cara
             return (nextFace <= currentFace) ? currentQty + 1 : currentQty;
+        }
+        
+        function applyResponse(targetFace) {
+            let targetQty = getNextValidBidQty(state.currentQty, state.currentFace, targetFace);
+            state.currentQty = targetQty;
+            state.currentFace = targetFace;
+            updateUI();
         }
 
         function updateUI() {
