@@ -246,8 +246,15 @@
         }
 
         function getNextValidBidQty(currentQty, currentFace, nextFace) {
-            if (currentFace === 1 && nextFace !== 1) return currentQty * 2 + 1;
-            if (currentFace !== 1 && nextFace === 1) return Math.floor(currentQty / 2) + 1;
+            // De Ases a otra cara: El doble exacto
+            if (currentFace === 1 && nextFace !== 1) {
+                return currentQty * 2; 
+            }
+            // De otra cara a Ases: mitad + 1 (par) o redondear hacia arriba (impar)
+            if (currentFace !== 1 && nextFace === 1) {
+                return Math.floor(currentQty / 2) + 1; 
+            }
+            // Mismo palo o subir de cara
             return (nextFace <= currentFace) ? currentQty + 1 : currentQty;
         }
 
