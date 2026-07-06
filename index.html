@@ -282,7 +282,7 @@
             state.currentFace = targetFace;
             updateUI();
         }
-
+        
         function updateUI() {
             document.getElementById('ui-total-dice').innerText = state.totalDice;
             document.getElementById('ui-current-qty').innerText = state.currentQty;
@@ -295,13 +295,53 @@
             document.getElementById('prob-curr-sin').innerText = calculateProbability(state.currentQty, state.currentFace, false) + '%';
             document.getElementById('prob-curr-con').innerText = calculateProbability(state.currentQty, state.currentFace, true) + '%';
 
+            // --- NUEVO CÓDIGO: Semáforo para la mejor jugada ---
+            
+            // Paso 1: Calcular todas las opciones y encontrar la probabilidad más alta
+            let maxProb = -1;
+            let probs = [];
+            let qtys = [];
+            
             for (let targetFace = 1; targetFace <= 6; targetFace++) {
                 let targetQty = getNextValidBidQty(state.currentQty, state.currentFace, targetFace);
-                document.getElementById(`resp-qty-${targetFace}`).innerText = targetQty;
-                document.getElementById(`resp-sin-${targetFace}`).innerText = calculateProbability(targetQty, targetFace, false) + '%';
-                document.getElementById(`resp-con-${targetFace}`).innerText = calculateProbability(targetQty, targetFace, true) + '%';
+                let probRespCon = calculateProbability(targetQty, targetFace, true);
+                
+                qtys[targetFace] = targetQty;
+                probs[targetFace] = probRespCon;
+                
+                if (probRespCon > maxProb) {
+                    maxProb = probRespCon;
+                }
+            }
+
+            // Paso 2: Actualizar la pantalla y pintar solo la mejor opción
+            for (let targetFace = 1; targetFace <= 6; targetFace++) {
+                document.getElementById(`resp-qty-${targetFace}`).innerText = qtys[targetFace];
+                document.getElementById(`resp-sin-${targetFace}`).innerText = calculateProbability(qtys[targetFace], targetFace, false) + '%';
+                document.getElementById(`resp-con-${targetFace}`).innerText = probs[targetFace] + '%';
+
+                let btn = document.getElementById(`resp-qty-${targetFace}`);
+                
+                // Reiniciamos el color al gris por defecto para todas
+                btn.style.backgroundColor = '';
+                btn.style.color = '';
+                
+                // Si esta jugada empata con la probabilidad máxima, aplicamos el semáforo
+                if (probs[targetFace] === maxProb) {
+                    if (maxProb >= 60) {
+                        btn.style.backgroundColor = '#d4edda'; // Verde (¡Dale con confianza!)
+                        btn.style.color = '#155724';
+                    } else if (maxProb >= 30) {
+                        btn.style.backgroundColor = '#fff3cd'; // Amarillo (Precaución)
+                        btn.style.color = '#856404';
+                    } else {
+                        btn.style.backgroundColor = '#f8d7da'; // Rojo (¡Mejor dudar!)
+                        btn.style.color = '#721c24';
+                    }
+                }
             }
         }
+       
         window.onload = updateUI;
     </script>
 </body>
