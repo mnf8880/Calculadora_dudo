@@ -293,19 +293,41 @@
         document.getElementById('prob-curr-sin').innerText = (probSin * 100).toFixed(1) + '%';
         document.getElementById('prob-curr-con').innerText = (probCon * 100).toFixed(1) + '%';
 
-        // Renderizar respuestas con la regla de Ases corregida (Ases * 2)
+// Renderizar respuestas con las jerarquías estrictas de DUDO (Regla familiar)
         for (let f = 1; f <= 6; f++) {
             let btn = document.getElementById(`resp-qty-${f}`);
             
             let qty;
+            
             if (state.currentFace === 1) {
-                qty = (f === 1) ? state.currentQty + 1 : (state.currentQty * 2);
+                // 1. REGLAS SI LA JUGADA ACTUAL ES EN ASES
+                if (f === 1) {
+                    // De As a As: Solo subes la cantidad
+                    qty = state.currentQty + 1;
+                } else {
+                    // De As a Normal: Es exactamente el doble de Ases
+                    qty = state.currentQty * 2;
+                }
             } else {
-                qty = (f === 1) ? Math.ceil(state.currentQty / 2) : state.currentQty + 1;
+                // 2. REGLAS SI LA JUGADA ACTUAL ES NORMAL
+                if (f === 1) {
+                    // De Normal a As: La mitad hacia abajo + 1
+                    qty = Math.floor(state.currentQty / 2) + 1;
+                } else {
+                    // De Normal a Normal:
+                    if (f <= state.currentFace) {
+                        // Si la cara es menor o igual, obligatoriamente sube la cantidad
+                        qty = state.currentQty + 1;
+                    } else {
+                        // Si la cara es estrictamente mayor, puedes mantener la cantidad
+                        qty = state.currentQty;
+                    }
+                }
             }
             
             btn.innerText = qty;
 
+            // El cálculo de las probabilidades (probCon, probSin, semáforos) se mantiene idéntico
             let pRes = calculateProbability(dadosOcultos, Math.max(0, qty - (state.myDice[f] + (f === 1 ? 0 : state.myDice[1]))), (f === 1 ? 1/6 : 1/3)) * 100;
 
             btn.classList.remove('risk-green', 'risk-red', 'risk-yellow');
