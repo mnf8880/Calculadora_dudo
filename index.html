@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cálculo DUDO - Versión Mejorada</title>
+    <title>Cálculo DUDO - Versión Ultra Compatible</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -137,7 +137,7 @@
             .panel { padding: 10px; }
         }
 
-        /* --- NUEVO SISTEMA DE SEMÁFORO DE 9 COLORES --- */
+        /* --- SISTEMA DE SEMÁFORO DE 9 COLORES --- */
         .risk-0-10 { background-color: #580007 !important; color: #ffffff !important; border: 2px solid #380004 !important; }
         .risk-10-20 { background-color: #90000b !important; color: #ffffff !important; border: 2px solid #600007 !important; }
         .risk-20-30 { background-color: #d00014 !important; color: #ffffff !important; border: 2px solid #90000e !important; }
@@ -300,9 +300,14 @@
         return prob;
     }
 
-    // Función auxiliar para aplicar la clase de color según el porcentaje exacto
+    // FUNCIÓN AUXILIAR REESCRITA PARA MÁXIMA COMPATIBILIDAD (Evita crasheos)
     function applyRiskColor(element, percentage) {
-        element.classList.remove(...riskClasses);
+        if (!element) return;
+        
+        // Bucle clásico compatible con navegadores antiguos y móviles integrados
+        for (let i = 0; i < riskClasses.length; i++) {
+            element.classList.remove(riskClasses[i]);
+        }
         
         let newClass = 'risk-0-10';
         if (percentage >= 10 && percentage < 20) newClass = 'risk-10-20';
@@ -333,15 +338,15 @@
         let probSin = calculateProbability(dadosOcultos, state.currentQty, p);
         let probCon = calculateProbability(dadosOcultos, Math.max(0, state.currentQty - misDadosEsaCara), p);
 
-        // 1. Redondear la jugada actual a cero fracciones (0 decimales)
+        // Redondear la jugada actual a cero fracciones
         document.getElementById('prob-curr-sin').innerText = (probSin * 100).toFixed(0) + '%';
         document.getElementById('prob-curr-con').innerText = (probCon * 100).toFixed(0) + '%';
 
-        // 2. Asignar colores a los nuevos puntos indicadores de la jugada actual
+        // Puntos indicadores estables
         applyRiskColor(document.getElementById('dot-curr-sin'), probSin * 100);
         applyRiskColor(document.getElementById('dot-curr-con'), probCon * 100);
 
-        // 3. Renderizar las respuestas adaptadas a tus reglas familiares y aplicar semáforo extendido
+        // Renderizar las respuestas adaptadas a tus reglas familiares
         for (let f = 1; f <= 6; f++) {
             let btn = document.getElementById(`resp-qty-${f}`);
             let qty;
@@ -368,18 +373,7 @@
 
             let pRes = calculateProbability(dadosOcultos, Math.max(0, qty - (state.myDice[f] + (f === 1 ? 0 : state.myDice[1]))), (f === 1 ? 1/6 : 1/3)) * 100;
 
-            // Aplicar el semáforo de 9 niveles al botón
+            // Aplicar el semáforo al botón de forma segura
             applyRiskColor(btn, pRes);
 
-            document.getElementById(`resp-sin-${f}`).innerText = (calculateProbability(dadosOcultos, qty, (f === 1 ? 1/6 : 1/3)) * 100).toFixed(0) + '%';
-            document.getElementById(`resp-con-${f}`).innerText = pRes.toFixed(0) + '%';
-        }
-    }
-
-    function applyResponse(face) {
-        state.currentFace = face;
-        state.currentQty = parseInt(document.getElementById(`resp-qty-${face}`).innerText);
-        updateUI();
-    }
-
-    window.onload = updateUI
+            document.getElementById(`resp-sin-${f}`).innerText = (calculateProbability(dadosOcultos, qty, (f === 1 ? 1/6 : 1/3)) * 100).
