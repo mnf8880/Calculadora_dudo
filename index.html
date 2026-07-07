@@ -376,4 +376,18 @@
             // Aplicar el semáforo al botón de forma segura
             applyRiskColor(btn, pRes);
 
-            document.getElementById(`resp-sin-${f}`).innerText = (calculateProbability(dadosOcultos, qty, (f === 1 ? 1/6 : 1/3)) * 100).
+            document.getElementById(`resp-sin-${f}`).innerText = (calculateProbability(dadosOcultos, qty, (f === 1 ? 1/6 : 1/3)) * 100).toFixed(0) + '%';
+            document.getElementById(`resp-con-${f}`).innerText = pRes.toFixed(0) + '%';
+        }
+    }
+
+    function applyResponse(face) {
+        state.currentFace = face;
+        state.currentQty = parseInt(document.getElementById(`resp-qty-${face}`).innerText);
+        updateUI();
+    }
+
+    window.onload = updateUI;
+</script>
+</body>
+</html>
