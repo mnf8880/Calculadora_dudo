@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cálculo DUDO</title>
+    <title>Cálculo DUDO - Versión Mejorada</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -81,7 +81,24 @@
         .selectable-face.selected { background-color: #00ffff; border-color: #00cccc; transform: scale(1.05); }
 
         .results-box { background: #eef2f5; padding: 10px; border-radius: 8px; text-align: center; }
-        .results-text { margin: 3px 0; font-size: 1.05em; color: #333; }
+        .results-text { 
+            margin: 6px 0; 
+            font-size: 1.1em; 
+            color: #333; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            margin-right: 8px;
+            border: 1px solid rgba(0,0,0,0.25);
+            transition: background-color 0.2s ease;
+        }
 
         .responses-grid {
             display: grid; grid-template-columns: repeat(6, 1fr) auto;
@@ -120,9 +137,16 @@
             .panel { padding: 10px; }
         }
 
-        .risk-green { background-color: #28a745 !important; color: white !important; border: 2px solid #1e7e34 !important; }
-        .risk-red { background-color: #dc3545 !important; color: white !important; border: 2px solid #bd2130 !important; }
-        .risk-yellow { background-color: #ffc107 !important; color: black !important; border: 2px solid #d39e00 !important; }
+        /* --- NUEVO SISTEMA DE SEMÁFORO DE 9 COLORES --- */
+        .risk-0-10 { background-color: #580007 !important; color: #ffffff !important; border: 2px solid #380004 !important; }
+        .risk-10-20 { background-color: #90000b !important; color: #ffffff !important; border: 2px solid #600007 !important; }
+        .risk-20-30 { background-color: #d00014 !important; color: #ffffff !important; border: 2px solid #90000e !important; }
+        .risk-30-40 { background-color: #ff6f00 !important; color: #ffffff !important; border: 2px solid #c85600 !important; }
+        .risk-40-50 { background-color: #ffcc00 !important; color: #000000 !important; border: 2px solid #cca300 !important; }
+        .risk-50-60 { background-color: #a3e635 !important; color: #000000 !important; border: 2px solid #7cb31e !important; }
+        .risk-60-70 { background-color: #22c55e !important; color: #ffffff !important; border: 2px solid #15803d !important; }
+        .risk-70-80 { background-color: #166534 !important; color: #ffffff !important; border: 2px solid #14532d !important; }
+        .risk-80-100 { background-color: #064e3b !important; color: #ffffff !important; border: 2px solid #022c22 !important; }
 
         .response-num {
             cursor: pointer;
@@ -130,7 +154,6 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .response-num:hover {
-            background-color: #d0d0d0;
             transform: translateY(-2px);
         }
         .response-num:active {
@@ -143,7 +166,6 @@
     <div class="main-container">
         <div class="header"><h1>🎲 Cálculo DUDO</h1></div>
 
-        <!-- Panel 1: Dados en Juego -->
         <div class="panel">
             <div class="panel-title">Dados en juego</div>
             <div class="dice-game-controls">
@@ -153,7 +175,6 @@
             </div>
         </div>
 
-        <!-- Panel 2: Mis Dados -->
         <div class="panel">
             <div class="panel-title">Mis dados</div>
             <div class="my-dice-grid">
@@ -181,7 +202,6 @@
             </div>
         </div>
 
-        <!-- Panel 3: Jugada Actual -->
         <div class="panel">
             <div class="panel-title">Jugada actual</div>
             <div class="current-play-controls">
@@ -200,12 +220,17 @@
                 <div class="selectable-face selected" id="sel-face-6" onclick="setCurrentFace(6)">⚅</div>
             </div>
             <div class="results-box">
-                <p class="results-text">Sin tus dados: <strong id="prob-curr-sin">--%</strong></p>
-                <p class="results-text">Con tus dados: <strong id="prob-curr-con">--%</strong></p>
+                <p class="results-text">
+                    <span class="status-dot" id="dot-curr-sin"></span>
+                    Sin tus dados:&nbsp;<strong id="prob-curr-sin">--%</strong>
+                </p>
+                <p class="results-text">
+                    <span class="status-dot" id="dot-curr-con"></span>
+                    Con tus dados:&nbsp;<strong id="prob-curr-con">--%</strong>
+                </p>
             </div>
         </div>
 
-        <!-- Panel 4: Posibles Respuestas -->
         <div class="panel col-span-full">
             <div class="panel-title">Posibles respuestas</div>
             <div class="responses-grid">
@@ -236,15 +261,16 @@
 <script>
     let state = { totalDice: 24, myDice: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 }, currentQty: 8, currentFace: 6 };
 
+    const riskClasses = [
+        'risk-0-10', 'risk-10-20', 'risk-20-30', 'risk-30-40', 
+        'risk-40-50', 'risk-50-60', 'risk-60-70', 'risk-70-80', 'risk-80-100'
+    ];
+
     function changeTotalDice(delta) { 
         state.totalDice = Math.max(1, state.totalDice + delta); 
-        // Limpiar mis dados por completo
         state.myDice = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 }; 
-        
-        // REGLA DE APERTURA: Establecer una buena primera jugada en base al total (Total / 3) en Seises
         state.currentQty = Math.max(1, Math.floor(state.totalDice / 3));
         state.currentFace = 6; 
-        
         updateUI(); 
     }
 
@@ -274,6 +300,23 @@
         return prob;
     }
 
+    // Función auxiliar para aplicar la clase de color según el porcentaje exacto
+    function applyRiskColor(element, percentage) {
+        element.classList.remove(...riskClasses);
+        
+        let newClass = 'risk-0-10';
+        if (percentage >= 10 && percentage < 20) newClass = 'risk-10-20';
+        else if (percentage >= 20 && percentage < 30) newClass = 'risk-20-30';
+        else if (percentage >= 30 && percentage < 40) newClass = 'risk-30-40';
+        else if (percentage >= 40 && percentage < 50) newClass = 'risk-40-50';
+        else if (percentage >= 50 && percentage < 60) newClass = 'risk-50-60';
+        else if (percentage >= 60 && percentage < 70) newClass = 'risk-60-70';
+        else if (percentage >= 70 && percentage < 80) newClass = 'risk-70-80';
+        else if (percentage >= 80) newClass = 'risk-80-100';
+        
+        element.classList.add(newClass);
+    }
+
     function updateUI() {
         document.getElementById('ui-total-dice').innerText = state.totalDice;
         for (let i = 1; i <= 6; i++) {
@@ -290,36 +333,32 @@
         let probSin = calculateProbability(dadosOcultos, state.currentQty, p);
         let probCon = calculateProbability(dadosOcultos, Math.max(0, state.currentQty - misDadosEsaCara), p);
 
-        document.getElementById('prob-curr-sin').innerText = (probSin * 100).toFixed(1) + '%';
-        document.getElementById('prob-curr-con').innerText = (probCon * 100).toFixed(1) + '%';
+        // 1. Redondear la jugada actual a cero fracciones (0 decimales)
+        document.getElementById('prob-curr-sin').innerText = (probSin * 100).toFixed(0) + '%';
+        document.getElementById('prob-curr-con').innerText = (probCon * 100).toFixed(0) + '%';
 
-// Renderizar respuestas con las jerarquías estrictas de DUDO (Regla familiar)
+        // 2. Asignar colores a los nuevos puntos indicadores de la jugada actual
+        applyRiskColor(document.getElementById('dot-curr-sin'), probSin * 100);
+        applyRiskColor(document.getElementById('dot-curr-con'), probCon * 100);
+
+        // 3. Renderizar las respuestas adaptadas a tus reglas familiares y aplicar semáforo extendido
         for (let f = 1; f <= 6; f++) {
             let btn = document.getElementById(`resp-qty-${f}`);
-            
             let qty;
             
             if (state.currentFace === 1) {
-                // 1. REGLAS SI LA JUGADA ACTUAL ES EN ASES
                 if (f === 1) {
-                    // De As a As: Solo subes la cantidad
                     qty = state.currentQty + 1;
                 } else {
-                    // De As a Normal: Es exactamente el doble de Ases
-                    qty = state.currentQty * 2;
+                    qty = state.currentQty * 2; // Regla de casa: De Ases a Normal es Q = A * 2
                 }
             } else {
-                // 2. REGLAS SI LA JUGADA ACTUAL ES NORMAL
                 if (f === 1) {
-                    // De Normal a As: La mitad hacia abajo + 1
-                    qty = Math.floor(state.currentQty / 2) + 1;
+                    qty = Math.floor(state.currentQty / 2) + 1; // De Normal a Ases
                 } else {
-                    // De Normal a Normal:
                     if (f <= state.currentFace) {
-                        // Si la cara es menor o igual, obligatoriamente sube la cantidad
                         qty = state.currentQty + 1;
                     } else {
-                        // Si la cara es estrictamente mayor, puedes mantener la cantidad
                         qty = state.currentQty;
                     }
                 }
@@ -327,13 +366,10 @@
             
             btn.innerText = qty;
 
-            // El cálculo de las probabilidades (probCon, probSin, semáforos) se mantiene idéntico
             let pRes = calculateProbability(dadosOcultos, Math.max(0, qty - (state.myDice[f] + (f === 1 ? 0 : state.myDice[1]))), (f === 1 ? 1/6 : 1/3)) * 100;
 
-            btn.classList.remove('risk-green', 'risk-red', 'risk-yellow');
-            if (pRes >= 60) btn.classList.add('risk-green');
-            else if (pRes < 40) btn.classList.add('risk-red');
-            else btn.classList.add('risk-yellow');
+            // Aplicar el semáforo de 9 niveles al botón
+            applyRiskColor(btn, pRes);
 
             document.getElementById(`resp-sin-${f}`).innerText = (calculateProbability(dadosOcultos, qty, (f === 1 ? 1/6 : 1/3)) * 100).toFixed(0) + '%';
             document.getElementById(`resp-con-${f}`).innerText = pRes.toFixed(0) + '%';
@@ -346,7 +382,4 @@
         updateUI();
     }
 
-    window.onload = updateUI;
-</script>
-</body>
-</html>
+    window.onload = updateUI
